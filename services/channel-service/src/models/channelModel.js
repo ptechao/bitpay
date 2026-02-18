@@ -1,53 +1,32 @@
-// services/channel-service/src/models/channelModel.js
-// 前言：此檔案定義了通道相關的資料庫操作模型，使用 Supabase 客戶端進行查詢。
+// 前言：此檔案定義了 Channel 微服務的資料模型，使用 Knex.js 查詢建構器與 PostgreSQL 互動。
+// 它包含了對 `channels` 表的資料庫操作方法，例如查找所有支付通道和創建支付通道。
 
-const supabase = require("../config/supabase");
+const db = require("../../src/config/db"); // 引入共用資料庫實例
 
-const TABLE_NAME = "payment_channels";
+const TABLE_NAME = "channels";
 
-const ChannelModel = {
-  async createChannel(channelData) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .insert([channelData])
-      .select();
+class ChannelModel {
+  static async findAll() {
+    return db(TABLE_NAME).select("*");
+  }
 
-    if (error) {
-      console.error("Error creating channel:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
+  static async findById(id) {
+    return db(TABLE_NAME).where({ id }).first();
+  }
 
-  async getChannelById(channelId) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("*")
-      .eq("id", channelId)
-      .single();
+  static async create(channelData) {
+    const [newChannel] = await db(TABLE_NAME).insert(channelData).returning("*");
+    return newChannel;
+  }
 
-    if (error && error.code !== "PGRST116") { // PGRST116 means no rows found
-      console.error("Error fetching channel by ID:", error);
-      throw new Error(error.message);
-    }
-    return data;
-  },
+  static async update(id, updateData) {
+    const [updatedChannel] = await db(TABLE_NAME).where({ id }).update(updateData).returning("*");
+    return updatedChannel;
+  }
 
-  async updateChannelStatus(channelId, status) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", channelId)
-      .select();
-
-    if (error) {
-      console.error("Error updating channel status:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
-
-  // 更多通道相關的資料庫操作可以依此模式添加
-};
+  static async delete(id) {
+    return db(TABLE_NAME).where({ id }).del();
+  }
+}
 
 module.exports = ChannelModel;

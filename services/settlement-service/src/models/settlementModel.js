@@ -1,53 +1,32 @@
-// services/settlement-service/src/models/settlementModel.js
-// 前言：此檔案定義了結算相關的資料庫操作模型，使用 Supabase 客戶端進行查詢。
+// 前言：此檔案定義了 Settlement 微服務的資料模型，使用 Knex.js 查詢建構器與 PostgreSQL 互動。
+// 它包含了對 `settlements` 和 `settlement_details` 表的資料庫操作方法，例如查找所有結算記錄和創建結算記錄。
 
-const supabase = require("../config/supabase");
+const db = require("../../src/config/db"); // 引入共用資料庫實例
 
 const TABLE_NAME = "settlements";
 
-const SettlementModel = {
-  async createSettlement(settlementData) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .insert([settlementData])
-      .select();
+class SettlementModel {
+  static async findAll() {
+    return db(TABLE_NAME).select("*");
+  }
 
-    if (error) {
-      console.error("Error creating settlement:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
+  static async findById(id) {
+    return db(TABLE_NAME).where({ id }).first();
+  }
 
-  async getSettlementById(settlementId) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("*")
-      .eq("id", settlementId)
-      .single();
+  static async create(settlementData) {
+    const [newSettlement] = await db(TABLE_NAME).insert(settlementData).returning("*");
+    return newSettlement;
+  }
 
-    if (error && error.code !== "PGRST116") { // PGRST116 means no rows found
-      console.error("Error fetching settlement by ID:", error);
-      throw new Error(error.message);
-    }
-    return data;
-  },
+  static async update(id, updateData) {
+    const [updatedSettlement] = await db(TABLE_NAME).where({ id }).update(updateData).returning("*");
+    return updatedSettlement;
+  }
 
-  async updateSettlementStatus(settlementId, status) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", settlementId)
-      .select();
-
-    if (error) {
-      console.error("Error updating settlement status:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
-
-  // 更多結算相關的資料庫操作可以依此模式添加
-};
+  static async delete(id) {
+    return db(TABLE_NAME).where({ id }).del();
+  }
+}
 
 module.exports = SettlementModel;

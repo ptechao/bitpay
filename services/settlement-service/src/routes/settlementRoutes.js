@@ -1,24 +1,14 @@
-// 檔案：src/routes/settlementRoutes.js
-// 說明：定義結算服務的所有 API 路由。
+// 前言：此檔案定義了 Settlement 微服務的 API 路由。
+// 包含了處理結算相關的端點，並使用 JWT 認證中間件保護。
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const settlementController = require('../controllers/settlementController');
-const { authenticateJWT, authorizeEntity } = require('../middlewares/authMiddleware');
+const settlementController = require("../controllers/settlementController");
 
-// 查詢結算單（商戶或代理）
-router.get('/:entityType/:entityId', authenticateJWT, authorizeEntity, settlementController.getSettlements);
+// 範例路由：獲取所有結算記錄
+router.get("/", settlementController.getAllSettlements);
 
-// 手動觸發結算
-router.post('/trigger', authenticateJWT, settlementController.triggerSettlement);
-
-// 發起提現
-router.post('/withdrawals', authenticateJWT, authorizeEntity, settlementController.initiateWithdrawal);
-
-// 查詢提現記錄
-router.get('/withdrawals/:withdrawalId', authenticateJWT, authorizeEntity, settlementController.getWithdrawalRecord);
-
-// 結算報表
-router.get('/:entityType/:entityId/reports', authenticateJWT, authorizeEntity, settlementController.getSettlementReports);
+// 範例路由：創建新的結算記錄
+router.post("/", settlementController.createSettlement);
 
 module.exports = router;

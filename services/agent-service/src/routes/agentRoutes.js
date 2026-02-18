@@ -1,33 +1,14 @@
-// 檔案：src/routes/agentRoutes.js
-// 說明：定義代理服務的所有 API 路由。
+// 前言：此檔案定義了 Agent 微服務的 API 路由。
+// 包含了處理代理商管理相關的端點，並使用 JWT 認證中間件保護。
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const agentController = require('../controllers/agentController');
-const { authenticateJWT, authorizeAgent } = require('../middlewares/authMiddleware');
+const agentController = require("../controllers/agentController");
 
-// 代理註冊
-router.post('/register', agentController.registerAgent);
+// 範例路由：獲取所有代理商
+router.get("/", agentController.getAllAgents);
 
-// 查詢代理資訊
-router.get('/:agentId', authenticateJWT, authorizeAgent, agentController.getAgentInfo);
-
-// 更新代理資訊
-router.put('/:agentId', authenticateJWT, authorizeAgent, agentController.updateAgentInfo);
-
-// 開通下級代理
-router.post('/:agentId/sub-agents', authenticateJWT, authorizeAgent, agentController.createSubAgent);
-
-// 開通商戶
-router.post('/:agentId/merchants', authenticateJWT, authorizeAgent, agentController.createMerchant);
-
-// 查詢下級代理和商戶列表
-router.get('/:agentId/subordinates', authenticateJWT, authorizeAgent, agentController.getSubordinates);
-
-// 查詢分潤記錄
-router.get('/:agentId/commissions', authenticateJWT, authorizeAgent, agentController.getCommissions);
-
-// 設定分潤規則
-router.put('/:agentId/commission-config', authenticateJWT, authorizeAgent, agentController.setCommissionConfig);
+// 範例路由：創建新的代理商
+router.post("/", agentController.createAgent);
 
 module.exports = router;

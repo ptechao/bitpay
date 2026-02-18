@@ -1,54 +1,42 @@
-"""riskControlModel.js"""
-// services/risk-control-service/src/models/riskControlModel.js
-// 前言：此檔案定義了風控相關的資料庫操作模型，使用 Supabase 客戶端進行查詢。
+// 前言：此檔案定義了 Risk-Control 微服務的資料模型，使用 Knex.js 查詢建構器與 PostgreSQL 互動。
+// 它包含了對 `risk_rules` 和 `risk_logs` 表的資料庫操作方法，例如查找所有風控規則和創建風控規則。
 
-const supabase = require("../config/supabase");
+const db = require("../../src/config/db"); // 引入共用資料庫實例
 
-const TABLE_NAME = "risk_events"; // 假設有一個風險事件表
+const RULES_TABLE_NAME = "risk_rules";
+const LOGS_TABLE_NAME = "risk_logs";
 
-const RiskControlModel = {
-  async createRiskEvent(eventData) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .insert([eventData])
-      .select();
+class RiskControlModel {
+  static async findAllRules() {
+    return db(RULES_TABLE_NAME).select("*");
+  }
 
-    if (error) {
-      console.error("Error creating risk event:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
+  static async findRuleById(id) {
+    return db(RULES_TABLE_NAME).where({ id }).first();
+  }
 
-  async getRiskEventById(eventId) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("*")
-      .eq("id", eventId)
-      .single();
+  static async createRule(ruleData) {
+    const [newRule] = await db(RULES_TABLE_NAME).insert(ruleData).returning("*");
+    return newRule;
+  }
 
-    if (error && error.code !== "PGRST116") { // PGRST116 means no rows found
-      console.error("Error fetching risk event by ID:", error);
-      throw new Error(error.message);
-    }
-    return data;
-  },
+  static async updateRule(id, updateData) {
+    const [updatedRule] = await db(RULES_TABLE_NAME).where({ id }).update(updateData).returning("*");
+    return updatedRule;
+  }
 
-  async updateRiskEventStatus(eventId, status) {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", eventId)
-      .select();
+  static async deleteRule(id) {
+    return db(RULES_TABLE_NAME).where({ id }).del();
+  }
 
-    if (error) {
-      console.error("Error updating risk event status:", error);
-      throw new Error(error.message);
-    }
-    return data[0];
-  },
+  static async createLog(logData) {
+    const [newLog] = await db(LOGS_TABLE_NAME).insert(logData).returning("*");
+    return newLog;
+  }
 
-  // 更多風控相關的資料庫操作可以依此模式添加
-};
+  static async findLogsByTransactionId(transactionId) {
+    return db(LOGS_TABLE_NAME).where({ transaction_id: transactionId }).select("*");
+  }
+}
 
 module.exports = RiskControlModel;

@@ -1,86 +1,85 @@
 # 聚合支付平台
 
-## 專案名稱與簡介
+## 概述
 
-**專案名稱**：聚合支付平台 (Aggregated Payment Platform)
-
-**專案簡介**：本聚合支付平台旨在提供一個全面、高效且安全的支付解決方案，整合多種支付通道，支援多幣種交易，並具備靈活的代理分潤機制。平台採用微服務架構，確保系統的高可用性、可擴展性和易於維護性，旨在為商戶和代理商提供一站式的支付管理服務。
-
-## 核心功能列表
-
-*   **多幣種支付**：支援法幣與加密貨幣交易，具備匯率轉換功能。
-*   **多支付通道整合**：無縫介接銀行、信用卡、電子錢包、加密貨幣交易所等。
-*   **智能支付路由**：根據多重條件自動選擇最佳支付通道。
-*   **API 收銀台與 QR 碼收銀台**：提供多樣化的支付發起方式。
-*   **多層級代理管理**：支援無限層級代理，提供多種分潤模式（百分比、固定金額、Mark-up）。
-*   **商戶生命週期管理**：包含註冊、審核、配置、交易查詢及結算設定。
-*   **靈活結算系統**：支援 D+0 到 T+30 的商戶結算週期，可由上層指定。
-*   **全面風控模組**：基於規則引擎、黑白名單、異常行為檢測及風險評分機制，保障交易安全。
-*   **多語言支援**：提供繁體中文、簡體中文、英文、日文、韓文、泰文、越南文等介面。
-*   **RESTful API 服務**：提供標準化的 API 介面供外部系統整合。
+這是一個基於微服務架構的聚合支付平台，旨在提供高效、安全且可擴展的支付解決方案。平台支援多種支付方式、商戶管理、代理商管理、交易結算和風險控制等功能。
 
 ## 技術棧
 
-本平台採用現代化的技術棧，以確保系統的性能、可擴展性和穩定性：
+### 後端
+- **語言**: Node.js
+- **框架**: Express.js
+- **資料庫**: PostgreSQL (自建)
+- **資料庫 ORM/Query Builder**: `knex.js`
+- **資料庫驅動**: `pg` (node-postgres)
+- **認證**: JWT (`jsonwebtoken`, `bcrypt`)
+- **快取**: Redis
+- **訊息佇列**: RabbitMQ
 
-*   **架構風格**：微服務 (Microservices)
-*   **容器化**：Docker
-*   **容器編排**：Kubernetes
-*   **前端框架**：React
-*   **後端語言**：Node.js (Express.js / NestJS)
-*   **資料庫：Supabase (PostgreSQL), MongoDB (非關聯式資料庫), Redis (快取)
-*   **訊息佇列**：Kafka / RabbitMQ
-*   **API 閘道**：Nginx / Kong
-*   **監控**：Prometheus, Grafana
-*   **日誌管理**：ELK Stack (Elasticsearch, Logstash, Kibana)
-*   **身份驗證**：OAuth2.0, JWT
+### 前端
+- **框架**: React.js
+- **認證**: 自建 JWT 認證模組
+- **API 請求**: `axios` 或 `fetch`
 
-## 專案目錄結構說明
+## 專案結構
 
 ```
-/project-root
-├── docs/                           # 專案文件
-│   ├── system-architecture.md      # 系統架構設計文件
-│   ├── database-design.md          # 資料庫設計文件
-│   ├── system-architecture.png     # 系統架構圖
-│   ├── payment-flow.png            # 支付流程圖
-│   ├── settlement-flow.png         # 結算流程圖
-│   ├── agent-commission-flow.png   # 代理分潤流程圖
-│   └── deployment-architecture.png # 部署架構圖
-├── database/                       # 資料庫相關
-│   └── schema.sql                  # PostgreSQL 建表語句
-├── services/                       # 微服務程式碼目錄
-│   ├── payment-service/            # 支付服務
-│   ├── settlement-service/         # 結算服務
-│   ├── agent-service/              # 代理服務
-│   ├── merchant-service/           # 商戶服務
-│   └── risk-control-service/       # 風控服務
-├── gateways/                       # API 閘道服務
-├── portals/                        # 前端應用程式目錄
-│   ├── merchant-portal/            # 商戶端介面
-│   ├── agent-portal/               # 代理管理端介面
-│   └── admin-portal/               # 後台管理端介面
-├── scripts/                        # 部署、維運腳本
-├── configs/                        # 環境配置檔案
-├── tests/                          # 測試程式碼
-└── README.md                       # 專案總覽說明文件
+. 
+├── docs/                       # 專案文件 (系統架構、資料庫設計、安裝部署指南等)
+├── database/                   # 資料庫相關檔案 (schema.sql)
+├── services/                   # 後端微服務目錄
+│   ├── payment/                # 支付服務
+│   ├── merchant/               # 商戶服務
+│   ├── agent/                  # 代理商服務
+│   ├── settlement/             # 結算服務
+│   ├── risk-control/           # 風控服務
+│   ├── channel/                # 通道服務
+│   └── shared/                 # 微服務共用模組
+│       ├── middlewares/        # 共用中間件 (如 JWT 認證)
+│       └── config/             # 共用配置 (如資料庫配置)
+├── src/                        # 核心配置，例如資料庫連線
+│   └── config/
+├── shared/                     # 前端共用模組
+│   ├── auth/                   # 認證相關模組 (AuthProvider, useAuth)
+│   └── api/                    # API 串接模組 (client.ts, auth.ts)
+├── .env.example                # 環境變數範例檔案
+├── package.json                # 專案依賴與腳本
+└── README.md                   # 專案說明文件
 ```
 
-## 快速開始指引 (佔位)
+## 環境變數
 
-此處將提供詳細的環境設定、依賴安裝、專案建構與啟動步驟。
+請複製 `.env.example` 檔案並將其命名為 `.env`，然後根據您的環境配置以下變數：
 
-## 環境變數說明
+```ini
+# PostgreSQL Configuration
+PG_HOST=localhost
+PG_PORT=5432
+PG_USER=your_username
+PG_PASSWORD=your_password
+PG_DATABASE=your_database_name
 
-為了正確運行平台服務，需要配置以下環境變數：
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key_very_long_and_complex
+JWT_EXPIRES_IN=1h
 
-*   `NODE_ENV`: 運行環境 (e.g., `development`, `production`)
-*   `PORT`: 服務監聽的端口 (e.g., `3000`)
-*   `SUPABASE_URL`: Supabase 專案的 URL，可在 Supabase 專案設定中找到。
-*   `SUPABASE_ANON_KEY`: Supabase 專案的公開匿名金鑰，用於前端和需要匿名存取的後端服務。
-*   `SUPABASE_SERVICE_ROLE_KEY`: Supabase 專案的服務角色金鑰，擁有完整資料庫權限，**僅限後端服務使用，需嚴格保密**。
-*   `JWT_SECRET`: 用於簽署和驗證 JWT 的密鑰 (如果服務有自定義 JWT 需求)
-*   `REDIS_URL`: Redis 連線 URL (如果使用 Redis)
-*   `MONGODB_URI`: MongoDB 連線 URI (如果使用 MongoDB)
+# 其他服務的環境變數 (例如 Redis, RabbitMQ)
+# REDIS_HOST=localhost
+# RABBITMQ_URL=amqp://localhost
+```
 
-每個微服務在其 `.env.example` 檔案中會列出該服務所需的具體環境變數。請根據實際部署環境配置這些變數。
+## 安裝與啟動
+
+請參考 `docs/installation-guide.md` 獲取詳細的安裝和啟動步驟。
+
+## 部署
+
+請參考 `docs/deployment-guide.md` 獲取詳細的部署指南。
+
+## 貢獻
+
+歡迎貢獻！請遵循標準的 Git Flow 流程，並提交 Pull Request。
+
+## 許可證
+
+[MIT License](LICENSE)
