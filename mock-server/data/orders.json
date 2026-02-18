@@ -1,0 +1,23 @@
+[
+  {
+    "order_id": "ORD_20240219_001",
+    "platform_order_id": "PAY_1708320000001",
+    "merchant_id": "MCH_001",
+    "amount": "100.00",
+    "currency": "TWD",
+    "channel": "ALIPAY",
+    "status": "SUCCESS",
+    "created_at": "2024-02-19T10:00:00Z",
+    "paid_at": "2024-02-19T10:05:00Z"
+  },
+  {
+    "order_id": "ORD_20240219_002",
+    "platform_order_id": "PAY_1708320000002",
+    "merchant_id": "MCH_001",
+    "amount": "200.00",
+    "currency": "USDT",
+    "channel": "USDT_TRC20",
+    "status": "PENDING",
+    "created_at": "2024-02-19T11:00:00Z"
+  }
+]

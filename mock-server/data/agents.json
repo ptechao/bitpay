@@ -1,0 +1,19 @@
+[
+  {
+    "id": "AGT_001",
+    "name": "一級代理商 A",
+    "level": 1,
+    "status": "ACTIVE",
+    "email": "agent_a@example.com",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "AGT_002",
+    "name": "二級代理商 B",
+    "level": 2,
+    "parent_id": "AGT_001",
+    "status": "ACTIVE",
+    "email": "agent_b@example.com",
+    "created_at": "2024-01-15T00:00:00Z"
+  }
+]

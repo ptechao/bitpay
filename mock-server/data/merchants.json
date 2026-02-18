@@ -1,0 +1,20 @@
+[
+  {
+    "id": "MCH_001",
+    "name": "全球支付有限公司",
+    "email": "contact@globalpay.com",
+    "status": "ACTIVE",
+    "api_key": "pk_live_51NzX2kL9mR4vS7jP",
+    "api_secret": "sk_live_9r8e7w6q5e4r3t2y",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "MCH_002",
+    "name": "電子商務有限公司",
+    "email": "sales@ecommerce.com",
+    "status": "PENDING",
+    "api_key": "pk_test_2kL9mR4vS7jP51NzX",
+    "api_secret": "sk_test_w6q5e4r3t2y9r8e7",
+    "created_at": "2024-02-01T00:00:00Z"
+  }
+]

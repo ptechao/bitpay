@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "支付寶 (Alipay)",
+    "code": "ALIPAY",
+    "status": "ACTIVE",
+    "rate": "1.2%",
+    "currencies": ["CNY", "TWD", "USD"]
+  },
+  {
+    "id": 2,
+    "name": "微信支付 (WeChat Pay)",
+    "code": "WECHAT",
+    "status": "ACTIVE",
+    "rate": "1.2%",
+    "currencies": ["CNY", "TWD", "USD"]
+  },
+  {
+    "id": 3,
+    "name": "USDT (TRC20)",
+    "code": "USDT_TRC20",
+    "status": "ACTIVE",
+    "rate": "0.5%",
+    "currencies": ["USDT"]
+  },
+  {
+    "id": 4,
+    "name": "信用卡 (Visa/Master)",
+    "code": "CREDIT_CARD",
+    "status": "INACTIVE",
+    "rate": "2.8%",
+    "currencies": ["USD", "TWD", "EUR"]
+  }
+]
