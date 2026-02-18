@@ -2,6 +2,19 @@
 
 ## 1. 引言
 
+本文件旨在詳細闡述聚合支付平台的系統架構設計，為開發、測試、部署及維護提供全面的技術指導。本平台致力於提供一個高效、安全、穩定且具備高度擴展性的支付解決方案，以滿足不同商戶和代理商的業務需求。
+
+**文件用途**：
+*   作為系統開發的藍圖，指導各模組的設計與實作。
+*   提供技術團隊對系統整體架構的理解，促進跨團隊協作。
+*   作為系統維護和升級的參考依據。
+
+**適用範圍**：
+本文件適用於聚合支付平台的所有相關技術人員，包括架構師、開發工程師、測試工程師、維運工程師及專案管理人員。
+
+**相關模組說明**：
+本系統主要由使用者介面層、應用服務層、資料層和基礎設施層構成，並包含支付引擎、通道管理、代理管理、商戶管理、結算系統及風控模組等核心功能模組。
+
 ## 2. 系統整體架構描述
 
 聚合支付平台旨在提供一個全面、高效且安全的支付解決方案，支援多幣種、多支付通道及複雜的代理分潤機制。系統整體架構將採用微服務（Microservices）設計理念，以提高系統的彈性、可擴展性和可維護性。主要由以下幾個部分組成：
@@ -22,9 +35,7 @@
 
 以下為系統整體架構圖：
 
-![系統整體架構圖](https://private-us-east-1.manuscdn.com/sessionFile/DntpLIEVDDMaVy6uGyUqlC/sandbox/IeJAOOrBslxXZu4fjvFjwm-images_1771430076361_na1fn_L2hvbWUvdWJ1bnR1L3BheW1lbnQtcGxhdGZvcm0vZG9jcy9zeXN0ZW0tYXJjaGl0ZWN0dXJl.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRG50cExJRVZERE1hVnk2dUd5VXFsQy9zYW5kYm94L0llSkFPT3JCc2x4WFp1NGZqdkZqd20taW1hZ2VzXzE3NzE0MzAwNzYzNjFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwzQmhlVzFsYm5RdGNHeGhkR1p2Y20wdlpHOWpjeTl6ZVhOMFpXMHRZWEpqYUdsMFpXTjBkWEpsLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=rZOKcf6gdcbzycz2IFZaNbfheOXbHl2uX6EHPpBu3~zUU68iNQYk4NAQtk0yMLont737y5h9-VHLMkko1bVxb8eHwskWy5PkQido0QBo2YwWTBZVgm13qDUhSaP1TXbBkahysg0REAR4H9k9f1X4-A~GXacXlFGrVF3GpfFiBq~pZUuqcI4PHoO0BhXz6bi7vxD2AheLZOIWOYxkssK-jrv-9PjnjPvbjL8h4ZA36nPKL-wUPeNqEr0JT7CoEQkVB3oDNx4wUcwzmW8XfILJRC5wqke13NHkvpcqsUWUi6dozbnVs9PZjbq4A2HnrBDGWSXM8hF73QZUdZvgJFmkHQ__)
-
-
+![系統整體架構圖](./system-architecture.png)
 
 ## 3. 核心模組說明
 
@@ -38,6 +49,7 @@
 *   **支付路由**：根據商戶配置、交易金額、幣種、風控結果等因素，智能選擇最佳支付通道。
 *   **交易處理**：處理支付請求的發起、狀態查詢、退款、撤銷等操作，確保交易的原子性和一致性。
 *   **支付狀態管理**：追蹤並更新支付交易的實時狀態，並提供回調（Callback）機制通知商戶。
+*   **收銀台支援**：支援多種收銀台模式，包括商戶透過 API 直接發起支付的 **API 收銀台**，以及生成二維碼供使用者掃碼付款的 **QR 碼收銀台**。
 
 ### 3.2 通道管理 (Channel Management)
 
@@ -69,7 +81,7 @@
 結算系統負責處理平台內部的資金清算與對帳，以及向商戶和代理商進行資金結算。主要功能包括：
 *   **交易清算**：對所有完成的交易進行資金清算，確認應收應付金額。
 *   **對帳管理**：與支付通道、銀行進行對帳，核對交易數據，處理差異。
-*   **商戶結算**：根據預設週期（日、週、月）或手動觸發，將商戶的淨收入結算至其指定帳戶。
+*   **商戶結算**：根據預設週期（日、週、月）或手動觸發，將商戶的淨收入結算至其指定帳戶。支援的結算週期範圍為 **D+0 到 T+30**，具體週期可由上層（代理或管理員）指定。
 *   **代理分潤結算**：根據分潤計算結果，將代理商的分潤金額結算至其指定帳戶。
 *   **報表生成**：生成各類結算報表、對帳單與財務報表。
 
@@ -82,19 +94,6 @@
 *   **風險評分**：對每筆交易進行風險評分，並根據分數觸發不同的處理策略（如拒絕、審核、人工介入）。
 *   **預警與報警**：在檢測到高風險事件時，實時發送預警通知給營運人員。
 
-
-### 3.1 支付引擎
-
-### 3.2 通道管理
-
-### 3.3 代理管理
-
-### 3.4 商戶管理
-
-### 3.5 結算系統
-
-### 3.6 風控模組
-
 ## 4. API 規格概覽
 
 聚合支付平台將提供一系列 RESTful API 供前端介面（商戶端、代理管理端、後台管理端）以及外部系統（如商戶的業務系統）進行互動。API 設計將遵循標準的 RESTful 原則，使用 JSON 格式進行資料交換，並透過 OAuth2.0 或 JWT 進行身份驗證與授權。主要 API 端點分類如下：
@@ -103,7 +102,7 @@
 
 | 端點分類 | 描述 | 主要操作 | 範例路徑 |
 | :------- | :--- | :------- | :------- |
-| 支付發起 | 建立支付訂單，獲取支付連結或二維碼 | `POST /payments` | `/api/v1/payments` |
+| 支付發起 | 建立支付訂單，獲取支付連結或二維碼。支援 **API 收銀台**（商戶直接發起支付）和 **QR 碼收銀台**（生成二維碼供使用者掃碼付款）。 | `POST /payments` | `/api/v1/payments` |
 | 支付查詢 | 查詢支付訂單狀態與詳情 | `GET /payments/{orderId}` | `/api/v1/payments/ORDER123` |
 | 支付回調 | 接收支付通道的支付結果通知 | `POST /payments/callback` | `/api/v1/payments/callback` |
 | 退款申請 | 發起退款操作 | `POST /refunds` | `/api/v1/refunds` |
@@ -185,7 +184,7 @@
     *   整個支付流程中的關鍵步驟都會產生日誌，供日誌服務收集、分析。
     *   監控服務實時監控支付引擎和通道的運行狀態、交易成功率等指標。
 
-![支付流程圖](https://private-us-east-1.manuscdn.com/sessionFile/DntpLIEVDDMaVy6uGyUqlC/sandbox/IeJAOOrBslxXZu4fjvFjwm-images_1771430076361_na1fn_L2hvbWUvdWJ1bnR1L3BheW1lbnQtcGxhdGZvcm0vZG9jcy9wYXltZW50LWZsb3c.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRG50cExJRVZERE1hVnk2dUd5VXFsQy9zYW5kYm94L0llSkFPT3JCc2x4WFp1NGZqdkZqd20taW1hZ2VzXzE3NzE0MzAwNzYzNjFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwzQmhlVzFsYm5RdGNHeGhkR1p2Y20wdlpHOWpjeTl3WVhsdFpXNTBMV1pzYjNjLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=Z19-Z-8xla9W5BY39y65dP8RSOZ44aCeKB0N9hT0bIAFUAeaKIlLGz9ggVCFv7zLx-ydyyUNwXsfQWiB0u4iMdQI2Nx32YWeqOHzaxx~UgrkZMTWgecDZLDuWruEZmuEAk7cZv1QD3zBTEeTSaZ0kI-8DUEZqQsXT4SFwi-2R6STkXN5BkSXeGcwuAU6BzYXDCFftRL837Ogu1xEW38vtz9I-ESNa~682AJgs7Mz0lrNCXM8nA4pP2zXS~x~JAmiNFbQZRVeoQ50l52TWiBYf5HrlI0OBfhk5aew01ivTuuiEaBQ8rNso1NZhwIU6mFEs1lQwdHjn2bA5Gt-hDHVOg__)
+![支付流程圖](./payment-flow.png)
 
 ### 5.2 結算流程
 
@@ -217,14 +216,15 @@
 6.  **財務記錄與報表**：
     *   所有結算數據都會被記錄，並生成各類財務報表，供平台內部財務審計和管理使用。
 
-![結算流程圖](https://private-us-east-1.manuscdn.com/sessionFile/DntpLIEVDDMaVy6uGyUqlC/sandbox/IeJAOOrBslxXZu4fjvFjwm-images_1771430076361_na1fn_L2hvbWUvdWJ1bnR1L3BheW1lbnQtcGxhdGZvcm0vZG9jcy9zZXR0bGVtZW50LWZsb3c.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRG50cExJRVZERE1hVnk2dUd5VXFsQy9zYW5kYm94L0llSkFPT3JCc2x4WFp1NGZqdkZqd20taW1hZ2VzXzE3NzE0MzAwNzYzNjFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwzQmhlVzFsYm5RdGNHeGhkR1p2Y20wdlpHOWpjeTl6WlhSMGJHVnRaVzUwTFdac2IzYy5wbmciLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=dXj8ZrsyE0cU9-VVdGbLBaicd8NN3jkI0C-AUqe8WEZQXGFHV3MLSCebqTjBcwSHTS4Sncn3BP87t16DPV3sF0BLr8x~tkbKl7f9-SpR2jEOP06KG9VuJLnAbbE~I5vwQDqu~IHpIfMchGhmq1GK5fRCoxaVxdwtWeHlCQ8X9ACHr9o3R8shHstg~HuEukmljApZK1jHuqiDZ~Wor5KDxBGw1Tj6~4CDfRcUoTTgx7VU3bttWopUY5mkTsfSax8Za~h02R7~dBMMT2eWSRyYgNf3EAhyLSA91A~DcksTAoBgSo6SPtGqKdVrdaWz4kToe4FsKd8twzzHyNjTTPY1uw__)
+![結算流程圖](./settlement-flow.png)
 
 ### 5.3 代理分潤流程
 
 代理分潤流程是聚合支付平台的重要組成部分，確保各級代理商能夠根據其貢獻獲得合理的分潤。此流程與支付流程和結算流程緊密相關。以下為代理分潤流程的資料流設計：
 
 1.  **交易發生與數據記錄**：
-    *   當商戶透過聚合支付平台完成一筆支付交易時，支付引擎會將交易的詳細資訊（包括交易金額、幣種、商戶ID、所屬代理ID、支付通道費率等）記錄下來，並傳送給結算系統。
+    *   當商戶透過聚合支付平台完成一筆支付交易時，支付引擎會將交易的詳細資訊（包括成功交易、退款、手續費等）記錄下來，並傳送給結算系統。
+    *   數據包含交易金額、幣種、商戶ID、所屬代理ID、支付通道費率等關鍵資訊。
 
 2.  **代理關係與分潤規則獲取**：
     *   結算系統從代理管理模組獲取該商戶所屬的代理層級關係鏈，以及各級代理商預設的分潤規則（例如：百分比分潤、固定金額分潤、mark-up 模式）。
@@ -252,131 +252,61 @@
     *   一旦代理分潤結算單確認無誤，結算系統會觸發資金撥付流程，將分潤金額轉入代理商預設的銀行帳戶或加密貨幣錢包。
     *   此過程與商戶結算資金撥付類似，可能需要與外部金融機構介接。
 
-![代理分潤流程圖](https://private-us-east-1.manuscdn.com/sessionFile/DntpLIEVDDMaVy6uGyUqlC/sandbox/IeJAOOrBslxXZu4fjvFjwm-images_1771430076361_na1fn_L2hvbWUvdWJ1bnR1L3BheW1lbnQtcGxhdGZvcm0vZG9jcy9hZ2VudC1jb21taXNzaW9uLWZsb3c.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRG50cExJRVZERE1hVnk2dUd5VXFsQy9zYW5kYm94L0llSkFPT3JCc2x4WFp1NGZqdkZqd20taW1hZ2VzXzE3NzE0MzAwNzYzNjFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwzQmhlVzFsYm5RdGNHeGhkR1p2Y20wdlpHOWpjeTloWjJWdWRDMWpiMjF0YVhOemFXOXVMV1pzYjNjLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=cjrLz~-e8MHWoVmPwzGyOCxc6vMOPNGEF8NPESaKD1xRCVZH8Yx5UMOA5rfPvorQ8G61MDxOaJKPh2R2H6t3YVtCTsIaXB6-qubmC-9yq~cz2aB5MPpviHUPMEInP-rocLVG9nAcHmIfAXx82l35iM8NJzlVRb88VdDSQtrvkUpmAa~tiW4OAvtTaTwbCEOkGLGPsARLRz9BpZaCNBO353hZXO~~QsyapurpZapUNVUrPbsaokTV~Pzz94r1lCyWbSPlVSR3phN08WfY5F57zrUt4kavmWbdJ3a-JvgT-C6T7YeIswDtauSlWNkGzeZqBHNAd84e1kNoutMu0AvmwA__)
+![代理分潤流程圖](./agent-commission-flow.png)
 
-## 6. 技術選型說明
+## 6. 多語言支援
 
-基於微服務架構和高併發、高可用、可擴展的需求，聚合支付平台將採用以下技術選型：
+為提供更廣泛的服務並提升使用者體驗，聚合支付平台將全面支援多語言。平台介面、通知訊息、報表及相關文件將提供以下語言版本：
 
-### 6.1 前端技術棧
+*   **繁體中文 (Traditional Chinese)**
+*   **簡體中文 (Simplified Chinese)**
+*   **英文 (English)**
+*   **日文 (Japanese)**
+*   **韓文 (Korean)**
+*   **泰文 (Thai)**
+*   **越南文 (Vietnamese)**
 
-*   **React**：作為前端框架，用於構建商戶端、代理管理端和後台管理端的使用者介面。React 擁有豐富的生態系統、組件化開發模式和高效的渲染能力，適合構建複雜的單頁應用（SPA）。
-*   **TypeScript**：為 JavaScript 程式碼提供靜態型別檢查，提高程式碼品質和可維護性，尤其適用於大型專案的協同開發。
-*   **Ant Design / Material-UI**：選用成熟的 UI 組件庫，加速介面開發，確保介面風格一致性和使用者體驗。
+多語言支援將透過國際化 (i18n) 和本地化 (l10n) 機制實現，確保內容的準確性和文化適應性。使用者可根據自身偏好選擇顯示語言。
 
-### 6.2 後端技術棧
+## 7. 部署架構
 
-*   **Node.js**：作為後端服務的運行環境，利用其非阻塞 I/O 和事件驅動的特性，非常適合處理高併發的網路請求，例如支付回調、API 請求等。
-*   **Express.js / NestJS**：選用輕量級的 Express.js 框架或基於 TypeScript 的 NestJS 框架來構建微服務。NestJS 提供了更結構化的開發模式和模組化設計，有助於大型專案的管理。
-*   **GraphQL / RESTful API**：API 設計將以 RESTful API 為主，部分複雜查詢或聚合需求可考慮引入 GraphQL 提高資料獲取效率。
+聚合支付平台將採用基於容器化技術（如 Docker）和容器編排平台（如 Kubernetes）的部署架構，以實現高可用性、可擴展性和自動化管理。
 
-### 6.3 資料庫選型
+1.  **生產環境 (Production Environment)**：
+    *   **多區域部署**：為確保高可用性和災難恢復能力，系統將部署在多個地理區域的資料中心。
+    *   **微服務部署**：每個微服務將獨立打包為 Docker 容器，並部署在 Kubernetes 集群中。
+    *   **負載均衡**：透過負載均衡器將流量分發到不同的服務實例，確保系統的穩定運行。
+    *   **自動擴縮**：根據流量負載自動擴縮服務實例，以應對業務高峰。
+    *   **監控與日誌**：整合 Prometheus、Grafana 進行系統監控，ELK Stack (Elasticsearch, Logstash, Kibana) 進行日誌管理與分析。
+    *   **資料庫高可用**：資料庫將採用主從複製、分片等技術，確保資料的高可用性和一致性。
 
-*   **關聯式資料庫 (Relational Database) - PostgreSQL / MySQL**：
-    *   適用於儲存需要強事務性、資料一致性要求高的核心業務數據，如支付訂單、結算記錄、商戶資訊、代理關係等。
-    *   PostgreSQL 在資料完整性、擴展性和對 JSON 數據的支援方面表現優異；MySQL 則擁有廣泛的社群支援和成熟的生態系統。
-*   **非關聯式資料庫 (NoSQL Database) - MongoDB**：
-    *   適用於儲存非結構化或半結構化數據，如日誌、使用者行為數據、風控規則配置等。
-    *   MongoDB 的文件型儲存模式靈活，易於擴展。
+2.  **開發與測試環境 (Development & Testing Environment)**：
+    *   提供獨立的開發和測試環境，與生產環境隔離，便於開發人員進行功能開發、測試和調試。
+    *   採用 CI/CD (持續整合/持續部署) 流程，實現程式碼的自動化建構、測試和部署。
 
-### 6.4 快取 (Cache)
+![部署架構圖](./deployment-architecture.png)
 
-*   **Redis**：作為分散式快取系統，用於儲存熱點數據、會話資訊、Token、風控規則、通道配置等。Redis 支援多種數據結構，讀寫性能極高，能有效減輕資料庫負載，提高系統響應速度。
+## 8. 安全考量
 
-### 6.5 訊息佇列 (Message Queue)
+支付平台的安全性至關重要，系統設計將全面考慮以下安全措施：
 
-*   **Kafka / RabbitMQ**：
-    *   用於實現微服務之間的異步通訊、解耦服務、削峰填谷、保證數據最終一致性。
-    *   例如，支付結果通知、結算數據傳輸、風控事件觸發、日誌收集等場景。
-    *   Kafka 擅長處理高吞吐量的日誌流數據；RabbitMQ 則在訊息可靠性和路由靈活性方面表現出色。
+*   **資料加密**：所有敏感資料（如使用者憑證、交易資訊）在傳輸和儲存過程中都將進行加密。
+*   **身份驗證與授權**：採用 OAuth2.0 或 JWT 進行 API 訪問的身份驗證與授權管理。
+*   **防火牆與網路隔離**：透過防火牆和網路隔離技術，限制未經授權的訪問。
+*   **入侵檢測與防禦**：部署入侵檢測系統 (IDS) 和入侵防禦系統 (IPS)，實時監控和阻止惡意攻擊。
+*   **安全審計**：定期進行安全審計和漏洞掃描，及時發現和修復安全漏洞。
+*   **日誌審計**：所有關鍵操作都將記錄日誌，便於追溯和審計。
 
-### 6.6 容器化與協調
+## 9. 性能與擴展性
 
-*   **Docker**：用於對各微服務進行容器化，提供一致的運行環境，簡化部署和管理。
-*   **Kubernetes (K8s)**：作為容器編排平台，用於自動化部署、擴展和管理容器化應用，實現高可用和負載均衡。
+為確保平台能夠處理高併發交易並支援未來業務增長，系統將具備以下性能與擴展性特點：
 
-### 6.7 其他工具
+*   **微服務架構**：各服務獨立部署，可獨立擴展，避免單點故障。
+*   **非同步處理**：採用訊息佇列（如 Kafka, RabbitMQ）實現交易的非同步處理，提高系統吞吐量。
+*   **快取機制**：引入 Redis 等快取服務，減少資料庫負載，提高資料讀取速度。
+*   **資料庫優化**：採用資料庫分庫分表、索引優化等技術，提升資料庫性能。
+*   **負載均衡**：透過負載均衡器分散請求，提高系統的併發處理能力。
 
-*   **API Gateway (e.g., Nginx, Kong, Ocelot)**：作為所有外部請求的統一入口，負責請求路由、負載均衡、身份驗證、限流、熔斷等。
-*   **日誌服務 (e.g., ELK Stack - Elasticsearch, Logstash, Kibana)**：用於日誌的收集、儲存、分析和可視化。
-*   **監控服務 (e.g., Prometheus, Grafana)**：用於系統性能指標的採集、儲存、警報和可視化。
+## 10. 總結
 
-## 7. 安全性設計
-
-聚合支付平台處理敏感的支付數據和資金流，因此安全性是設計中最重要的考量之一。以下是平台將採用的主要安全性設計原則和措施：
-
-### 7.1 身份驗證與授權 (Authentication & Authorization)
-
-*   **多因素驗證 (MFA)**：對於商戶、代理商和後台管理員登入，強制要求使用多因素驗證，例如簡訊驗證碼、Google Authenticator 等，以增強帳戶安全性。
-*   **OAuth 2.0 / JWT**：API 存取將採用 OAuth 2.0 授權框架或 JSON Web Tokens (JWT) 進行身份驗證和授權管理。每個請求都需攜帶有效的 Token，並在 API Gateway 層進行驗證。
-*   **角色型存取控制 (RBAC)**：實施細粒度的 RBAC，根據使用者角色分配不同的操作權限，確保使用者只能存取其被授權的資源和功能。
-
-### 7.2 資料加密與保護
-
-*   **傳輸加密 (TLS/SSL)**：所有網路通訊（包括前端與後端、微服務之間、與第三方支付通道的通訊）都將透過 TLS/SSL 進行加密，防止數據在傳輸過程中被竊聽或篡改。
-*   **靜態數據加密 (Encryption at Rest)**：敏感數據（如支付憑證、使用者個人資訊、銀行帳號等）在資料庫中儲存時將進行加密，即使資料庫被非法存取，數據也難以被解讀。
-*   **敏感數據脫敏**：在日誌、報表和顯示介面中，對敏感數據進行脫敏處理（如卡號顯示部分星號），減少敏感數據的暴露風險。
-
-### 7.3 風險控制與監控
-
-*   **實時風控**：透過風控模組實施實時交易監控和風險評估，利用規則引擎和機器學習模型識別異常交易行為，並及時採取阻斷、審核或警報措施。
-*   **黑白名單機制**：建立並維護高風險使用者、IP、設備的黑名單，以及可信任實體的白名單，用於交易的快速判斷。
-*   **異常登入檢測**：監控使用者登入行為，如異地登入、頻繁失敗登入等，並觸發警報或要求額外驗證。
-
-### 7.4 安全審計與日誌
-
-*   **完整日誌記錄**：記錄所有關鍵操作和事件的詳細日誌，包括使用者登入、交易處理、配置更改、權限變更等，確保可追溯性。
-*   **日誌集中管理與分析**：將所有日誌集中儲存到日誌服務中，並定期進行安全審計和分析，及時發現潛在的安全威脅。
-*   **安全漏洞掃描與滲透測試**：定期對系統進行安全漏洞掃描和滲透測試，及時發現並修復潛在的安全漏洞。
-
-### 7.5 程式碼安全
-
-*   **安全編碼規範**：開發過程中遵循安全編碼規範，防止常見的 Web 漏洞，如 SQL 注入、XSS、CSRF 等。
-*   **依賴項安全審計**：定期檢查專案所使用的第三方庫和框架是否存在已知的安全漏洞，並及時更新。
-*   **程式碼審查**：實施嚴格的程式碼審查流程，確保程式碼品質和安全性。
-
-## 8. 部署架構建議
-
-聚合支付平台將採用現代化的雲原生部署策略，以實現高可用性、可擴展性、彈性和自動化。以下是建議的部署架構：
-
-### 8.1 雲端基礎設施
-
-*   **公有雲平台**：建議部署在主流公有雲平台（如 AWS, Google Cloud Platform, Azure）上，利用其豐富的基礎設施服務和全球覆蓋能力。
-*   **多區域部署**：為確保高可用性和災難恢復能力，核心服務應部署在至少兩個不同的地理區域（Region）中，並在每個區域內使用多個可用區（Availability Zone）。
-
-### 8.2 容器化與容器編排
-
-*   **Docker 容器**：所有微服務都將被打包成 Docker 容器映像，確保開發、測試和生產環境的一致性。
-*   **Kubernetes (K8s) 集群**：使用 Kubernetes 作為容器編排平台，負責微服務的自動部署、擴展、負載均衡、服務發現和自我修復。每個環境（開發、測試、生產）都將擁有獨立的 K8s 集群。
-
-### 8.3 網路架構
-
-*   **VPC (Virtual Private Cloud)**：在雲端建立隔離的虛擬網路環境，並劃分子網（Public Subnet, Private Subnet）以區隔不同安全等級的資源。
-*   **負載均衡器 (Load Balancer)**：在 API Gateway 前端部署雲服務商提供的負載均衡器，將外部流量均勻分發到後端服務，並提供 SSL 終止功能。
-*   **API Gateway**：作為所有微服務的統一入口，負責請求路由、身份驗證、限流、熔斷等，保護後端服務。
-*   **防火牆與安全組 (Firewall & Security Groups)**：嚴格配置網路防火牆和安全組規則，只允許必要的埠和協議流量通過，限制對敏感服務的存取。
-
-### 8.4 資料庫部署
-
-*   **託管式資料庫服務**：使用雲服務商提供的託管式資料庫服務（如 AWS RDS, Google Cloud SQL），以簡化資料庫的管理、備份、擴展和高可用性配置。
-*   **讀寫分離**：對於讀取密集型服務，可配置資料庫讀寫分離，將讀取請求分發到只讀副本，提高資料庫性能。
-*   **數據備份與恢復**：定期自動備份資料庫，並建立完善的數據恢復策略。
-
-### 8.5 持續整合與持續部署 (CI/CD)
-
-*   **CI/CD 流水線**：建立自動化的 CI/CD 流水線，從程式碼提交到測試、構建、容器映像建立、部署到生產環境，實現快速迭代和可靠發布。
-*   **版本控制**：使用 Git 進行程式碼版本控制。
-
-### 8.6 監控與日誌
-
-*   **集中式日誌系統**：透過 ELK Stack 或雲服務商的日誌服務（如 AWS CloudWatch Logs, Google Cloud Logging）收集、儲存和分析所有微服務的日誌。
-*   **監控系統**：使用 Prometheus + Grafana 或雲服務商的監控服務（如 AWS CloudWatch, Google Cloud Monitoring）監控系統的各項指標，包括 CPU、記憶體、網路、磁碟、應用程式性能指標等，並設定警報規則。
-*   **追蹤系統**：引入分散式追蹤系統（如 Jaeger, Zipkin）來追蹤請求在微服務之間的流動，便於問題診斷和性能優化。
-
-### 8.7 部署架構圖
-
-![部署架構圖](https://private-us-east-1.manuscdn.com/sessionFile/DntpLIEVDDMaVy6uGyUqlC/sandbox/IeJAOOrBslxXZu4fjvFjwm-images_1771430076361_na1fn_L2hvbWUvdWJ1bnR1L3BheW1lbnQtcGxhdGZvcm0vZG9jcy9kZXBsb3ltZW50LWFyY2hpdGVjdHVyZQ.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRG50cExJRVZERE1hVnk2dUd5VXFsQy9zYW5kYm94L0llSkFPT3JCc2x4WFp1NGZqdkZqd20taW1hZ2VzXzE3NzE0MzAwNzYzNjFfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwzQmhlVzFsYm5RdGNHeGhkR1p2Y20wdlpHOWpjeTlrWlhCc2IzbHRaVzUwTFdGeVkyaHBkR1ZqZEhWeVpRLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=TTp6p2v4yTqJl~hTBCwONKnpboNhxSS4hPhKQtUx4MhMBwQ7T1UTFSLCECF1WzRb6OV1z8-JIkjDZ8AiAUayIxW1z8lrJbzuQd9xDw9OxRFPdnUiTi~uB7n0jlEsrlx8yIs80~f~B3C2te0xaFYx5p8xefctJ-RcoSs4aeF4GtqiSmLHU4cMkizsulAF~bZrTLYIPJjdKnXF-D0pGpnT7PA3l6A27X0oYeY0uyTA50q7Onvr7fAdMD0ugct5Zwgoa~GiU8FLc2dMhmojNGdL7ID1NsUHdAhPRxYGBT2wr7SAFinqq~sI5zirhiKq9TllVPwkMHWH5CMGfNe~eeJ8~w__)
-
-## 9. 結論
-
-本文件詳細闡述了聚合支付平台的系統架構設計，涵蓋了核心模組、API 規格、資料流、技術選型、安全性設計及部署架構建議。透過採用微服務架構、雲原生技術和嚴格的安全措施，旨在構建一個高效、安全、可擴展且易於維護的聚合支付平台，以滿足多幣種、多通道支付和複雜代理分潤的需求。```
+本聚合支付平台系統架構設計文件詳細闡述了平台的整體架構、核心模組、API 規格、資料流、多語言支援、部署架構、安全考量以及性能與擴展性。透過採用微服務、容器化、高可用性部署等先進技術，本平台將能夠提供一個穩定、高效、安全且易於擴展的支付解決方案，為商戶和代理商創造更大的價值。
