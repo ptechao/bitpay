@@ -28,7 +28,7 @@
 *   **容器編排**：Kubernetes
 *   **前端框架**：React
 *   **後端語言**：Node.js (Express.js / NestJS)
-*   **資料庫**：PostgreSQL (關聯式資料庫), MongoDB (非關聯式資料庫), Redis (快取)
+*   **資料庫：Supabase (PostgreSQL), MongoDB (非關聯式資料庫), Redis (快取)
 *   **訊息佇列**：Kafka / RabbitMQ
 *   **API 閘道**：Nginx / Kong
 *   **監控**：Prometheus, Grafana
@@ -69,3 +69,18 @@
 ## 快速開始指引 (佔位)
 
 此處將提供詳細的環境設定、依賴安裝、專案建構與啟動步驟。
+
+## 環境變數說明
+
+為了正確運行平台服務，需要配置以下環境變數：
+
+*   `NODE_ENV`: 運行環境 (e.g., `development`, `production`)
+*   `PORT`: 服務監聽的端口 (e.g., `3000`)
+*   `SUPABASE_URL`: Supabase 專案的 URL，可在 Supabase 專案設定中找到。
+*   `SUPABASE_ANON_KEY`: Supabase 專案的公開匿名金鑰，用於前端和需要匿名存取的後端服務。
+*   `SUPABASE_SERVICE_ROLE_KEY`: Supabase 專案的服務角色金鑰，擁有完整資料庫權限，**僅限後端服務使用，需嚴格保密**。
+*   `JWT_SECRET`: 用於簽署和驗證 JWT 的密鑰 (如果服務有自定義 JWT 需求)
+*   `REDIS_URL`: Redis 連線 URL (如果使用 Redis)
+*   `MONGODB_URI`: MongoDB 連線 URI (如果使用 MongoDB)
+
+每個微服務在其 `.env.example` 檔案中會列出該服務所需的具體環境變數。請根據實際部署環境配置這些變數。

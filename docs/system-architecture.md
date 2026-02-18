@@ -28,20 +28,30 @@
     *   由一系列獨立部署的微服務組成，每個服務負責特定的業務功能，例如支付服務、訂單服務、使用者服務、代理服務、結算服務、風控服務等。這些服務之間透過輕量級通訊機制（如 RESTful API 或訊息佇列）進行互動。
 
 3.  **資料層 (Data Layer)**：
-    *   每個微服務擁有獨立的資料庫，確保資料的自治性。根據資料特性，可選用關聯式資料庫（如 MySQL）或非關聯式資料庫（如 MongoDB、Redis）。
+    *   平台的核心資料庫將遷移至 **Supabase**，這是一個開源的 Firebase 替代方案，提供 PostgreSQL 資料庫、認證（Auth）、即時訂閱、儲存（Storage）等功能。每個微服務將透過 Supabase Client SDK 進行資料庫操作，並利用其內建的認證和授權機制。
+    *   Supabase 提供的 PostgreSQL 資料庫將作為主要關聯式資料庫，支援結構化資料的儲存與查詢。
+    *   對於非關聯式資料或快取需求，仍可選用 Redis 或其他適當的解決方案。
 
 4.  **基礎設施層 (Infrastructure Layer)**：
     *   包含負載均衡、API Gateway、服務註冊與發現、日誌服務、監控服務等，為上層應用提供穩定可靠的運行環境。
 
 以下為系統整體架構圖：
 
-![系統整體架構圖](./system-architecture.png)
+![系統整體架構圖](https://private-us-east-1.manuscdn.com/sessionFile/FhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBay-repo/docs/system-architecture.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRmhKRUpHNkNMNWpCUGtidjZIUWl2Ry9zYW5kYm94LzYybEpQeUsxelpsT3hWd2dKVWJjQXctaW1hZ2VzXzE3NzE0MzY2ODQ1MDZfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwySnBkSEJoZVMxeVpYQnZMMlJ2WTNNdmMzbHpkR1Z0TFdGeVkyaHBkR1ZqZEhWeVpRLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=qOmwCFjv8mPYuImH9lI1JVoisKK0i~l9mgN9XuGA9ZFBzrUlYJONfic5cZO41UKbobM0KlC1U9bVMR3oCSE~hEf7goR3VXNytXB0lLgExaRLzLxYE~~vRG0chepYwBZH957cqFJxDPtlHyg7bw~zWGJR~cxn21BAWR1e8lN0U4kTr4hsH5sJzwv4d8wtZX-QmC16TIfFQ~DUJjtLQI~j8Y8Qa31H~-QUMgO90Jy0MgoQC7xVwWxdibSuo~6JMLOcRN2WFhl~fyHqKetgCS8UxYn196xfrQCWObv6BZmfEYadof41BbzZQ9pBMdIj-fuqoB6cgRnAtaIwlXo4WO9D9w__)
 
 ## 3. 核心模組說明
 
 本聚合支付平台的核心功能將由以下關鍵模組提供支援：
 
-### 3.1 支付引擎 (Payment Engine)
+### 3.1 身份驗證與授權 (Authentication and Authorization)
+
+平台將利用 **Supabase Auth** 提供強大且安全的身份驗證與授權機制。Supabase Auth 支援多種登入方式（如電子郵件/密碼、第三方 OAuth），並與 PostgreSQL 資料庫深度整合，透過 JSON Web Tokens (JWT) 管理使用者會話。這將確保所有使用者（管理員、代理、商戶）的身份安全，並為後續的資料庫 Row Level Security (RLS) 提供基礎。
+
+*   **使用者管理**：Supabase Auth 提供開箱即用的使用者註冊、登入、密碼重設等功能。
+*   **JWT 整合**：透過 JWT 進行無狀態的身份驗證，確保 API 請求的安全性。
+*   **與 RLS 協同**：Supabase Auth 產生的 JWT 將用於資料庫層的 RLS 策略，實現精細的資料存取控制。
+
+### 3.2 支付引擎 (Payment Engine)
 
 支付引擎是平台的核心，負責處理所有支付相關的邏輯。其主要職責包括：
 *   **多幣種支援**：處理法幣（如 USD, EUR, TWD）和加密貨幣（如 BTC, ETH, USDT）的支付請求。需具備匯率轉換、幣種識別與驗證能力。
@@ -51,7 +61,7 @@
 *   **支付狀態管理**：追蹤並更新支付交易的實時狀態，並提供回調（Callback）機制通知商戶。
 *   **收銀台支援**：支援多種收銀台模式，包括商戶透過 API 直接發起支付的 **API 收銀台**，以及生成二維碼供使用者掃碼付款的 **QR 碼收銀台**。
 
-### 3.2 通道管理 (Channel Management)
+### 3.3 通道管理 (Channel Management)
 
 通道管理模組負責支付通道的配置、監控與維護，確保支付服務的穩定性與可用性。主要功能包括：
 *   **通道配置**：管理各支付通道的參數、憑證、費率、支援幣種、限額等資訊。
@@ -59,7 +69,7 @@
 *   **通道切換**：在通道故障或性能不佳時，自動或手動切換至備用通道，確保業務連續性。
 *   **費率管理**：配置和管理不同通道、不同幣種、不同交易類型的費率策略。
 
-### 3.3 代理管理 (Agent Management)
+### 3.4 代理管理 (Agent Management)
 
 代理管理模組支援平台的多層級代理體系，實現代理商的註冊、管理、分潤計算與下級管理。主要功能包括：
 *   **代理註冊與審核**：管理代理商的註冊流程、資訊審核與啟用。
@@ -68,7 +78,7 @@
 *   **分潤計算**：根據代理層級、分潤策略和交易數據，自動計算各級代理的分潤金額。
 *   **代理權限管理**：配置代理商對其下級代理和商戶的管理權限，如開通、停用、查看數據等。
 
-### 3.4 商戶管理 (Merchant Management)
+### 3.5 商戶管理 (Merchant Management)
 
 商戶管理模組負責商戶的生命週期管理，包括註冊、審核、配置、交易查詢等。主要功能包括：
 *   **商戶註冊與審核**：管理商戶的入駐流程、KYC/AML 審核與啟用。
@@ -76,7 +86,7 @@
 *   **訂單與交易查詢**：提供商戶查詢其所有支付訂單和交易詳情的介面。
 *   **商戶結算配置**：設定商戶的結算週期、結算帳戶與提現規則。
 
-### 3.5 結算系統 (Settlement System)
+### 3.6 結算系統 (Settlement System)
 
 結算系統負責處理平台內部的資金清算與對帳，以及向商戶和代理商進行資金結算。主要功能包括：
 *   **交易清算**：對所有完成的交易進行資金清算，確認應收應付金額。
@@ -85,7 +95,7 @@
 *   **代理分潤結算**：根據分潤計算結果，將代理商的分潤金額結算至其指定帳戶。
 *   **報表生成**：生成各類結算報表、對帳單與財務報表。
 
-### 3.6 風控模組 (Risk Control Module)
+### 3.7 風控模組 (Risk Control Module)
 
 風控模組旨在識別、評估和防範支付交易中的潛在風險，保障平台和使用者的資金安全。主要功能包括：
 *   **規則引擎**：基於預設或動態配置的風控規則（如交易頻率、金額、IP 地址、設備指紋等）進行實時風險評估。
@@ -93,6 +103,13 @@
 *   **異常行為檢測**：利用機器學習或統計模型檢測異常交易模式，如盜刷、欺詐等。
 *   **風險評分**：對每筆交易進行風險評分，並根據分數觸發不同的處理策略（如拒絕、審核、人工介入）。
 *   **預警與報警**：在檢測到高風險事件時，實時發送預警通知給營運人員。
+
+### 3.8 多語言支援 (Multi-language Support)
+
+平台將提供全面的多語言支援，以服務全球不同地區的商戶和使用者。支援的語言包括**繁體中文、簡體中文、英文、日文、韓文、泰文、越南文**。這將透過前端介面的語言切換功能和後端資料庫的翻譯機制實現，確保系統介面、通知訊息及部分業務資料（如通道名稱、描述）能以使用者偏好的語言顯示。
+
+*   **介面翻譯**：前端應用將實作國際化 (i18n) 機制，支援動態語言切換。
+*   **資料庫內容翻譯**：對於需要多語言顯示的資料，將透過專門的翻譯表進行管理，確保業務資料的本地化呈現。
 
 ## 4. API 規格概覽
 
@@ -184,7 +201,7 @@
     *   整個支付流程中的關鍵步驟都會產生日誌，供日誌服務收集、分析。
     *   監控服務實時監控支付引擎和通道的運行狀態、交易成功率等指標。
 
-![支付流程圖](./payment-flow.png)
+![支付流程圖](https://private-us-east-1.manuscdn.com/sessionFile/FhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBheS1yZXBvL2RvY3MvcGF5bWVudC1mbG93.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRmhKRUpHNkNMNWpCUGtidjZIUWl2Ry9zYW5kYm94LzYybEpQeUsxelpsT3hWd2dKVWJjQXctaW1hZ2VzXzE3NzE0MzY2ODQ1MDZfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwySnBkSEJoZVMxeVpYQnZMMlJ2WTNNdmNHRjViV1Z1ZEMxbWJHOTMucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=FgYg5CMP0MnYiwgouPKwLRCirexrWG6tKX9QWoxy7F2CPFHK~2nWaIfUZQXsXpQguxDh5-27XcYj0OtuuE-C3IZVwygKQhOWv8OYS4dvjUuXQwC~PZCD1rZ-TmlVOzArAcJwDBIZHQvP9vR8gYTAju5h2cxOk478b8SuvZam4-4aL2LS-N8ofOCnDu8cJ4nOEgga~qCySDd4ugKgta7Ptqwvop5kVPGDruNjllnnetcr5Q7nsscBSsSrIlgQq7PgJSC2QA0nXCTO2O7C9EE63YPilA5J2m3HkLfhnZLK2j4mCXhUdFVcpFuAwP251uIGvixP6wqAfmmYUmMGG7a2jQ__)
 
 ### 5.2 結算流程
 
@@ -216,7 +233,7 @@
 6.  **財務記錄與報表**：
     *   所有結算數據都會被記錄，並生成各類財務報表，供平台內部財務審計和管理使用。
 
-![結算流程圖](./settlement-flow.png)
+![結算流程圖](https://private-us-east-1.manuscdn.com/sessionFile/FhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBheS1yZXBvL2RvY3Mvc2V0dGxlbWVudC1mbG93.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRmhKRUpHNkNMNWpCUGbidjZIUWl2Ry9zYW5kYm94LzYybEpQeUsxelpsT3hWd2dKVWJjQXctaW1hZ2VzXzE3NzE0MzY2ODQ1MDZfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwySnBkSEJoZVMxeVpYQnZMMlJ2WTNNdmMyVjBkR3hsYldWdWRDMW1iRzkzLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=bxPl03TSd4EfAfnlGRoal6RJiG1ihr75f23NaX1qBOzzcXc6Kawn0N-PAsS1tjgCxVf~8p6gUej21rClSRjJqBRpN2xPVdOofzCoBCsn8cWdBjpyBkZJUC~3PYIX5lgjYcLRhxiMRFFGoID0Sya4~iTUOxCLKt1uh2RuRf8hfncfhqtbw8M1KyJDZ6XvGJ3S5oHHPoiwIEbiiS9xPH1XiW157LCwKMVdwuslHAqY68AsPRxa7VxDPfWu54oXVRBv-BNxSAjwVlVpiOpwGG9IFjcELYFWQbpxJu1ib58LkLsbJjZG0XMukb7dVknKtrcSRTJNWjdvdHovy9-xTbxinw__)
 
 ### 5.3 代理分潤流程
 
@@ -252,61 +269,10 @@
     *   一旦代理分潤結算單確認無誤，結算系統會觸發資金撥付流程，將分潤金額轉入代理商預設的銀行帳戶或加密貨幣錢包。
     *   此過程與商戶結算資金撥付類似，可能需要與外部金融機構介接。
 
-![代理分潤流程圖](./agent-commission-flow.png)
+![代理分潤流程圖](https://private-us-east-1.manuscdn.com/sessionFile/FhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBheS1yZXBvL2RvY3Mvc2V0dGxlbWVudC1mbG93.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRmhKRUpHNkNMNWpCUGbidjZIUWl2Ry9zYW5kYm94LzYybEpQeUsxelpsT3hWd2dKVWJjQXctaW1hZ2VzXzE3NzE0MzY2ODQ1MDZfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwySnBkSEJoZVMxeVpYQnZMMlJ2WTNNdmMyVjBkR3hsYldWdWRDMW1iRzkzLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=bxPl03TSd4EfAfnlGRoal6RJiG1ihr75f23NaX1qBOzzcXc6Kawn0N-PAsS1tjgCxVf~8p6gUej21rClSRjJqBRpN2xPVdOofzCoBCsn8cWdBjpyBkZJUC~3PYIX5lgjYcLRhxiMRFFGoID0Sya4~iTUOxCLKt1uh2RuRf8hfncfhqtbw8M1KyJDZ6XvGJ3S5oHHPoiwIEbiiS9xPH1XiW157LCwKMVdwuslHAqY68AsPRxa7VxDPfWu54oXVRBv-BNxSAjwVlVpiOpwGG9IFjcELYFWQbpxJu1ib58LkLsbJjZG0XMukb7dVknKtrcSRTJNWjdvdHovy9-xTbxinw__)
 
-## 6. 多語言支援
+## 6. 部署架構
 
-為提供更廣泛的服務並提升使用者體驗，聚合支付平台將全面支援多語言。平台介面、通知訊息、報表及相關文件將提供以下語言版本：
+平台將採用容器化部署，利用 Docker 和 Kubernetes 實現高可用性和可擴展性。各微服務將獨立部署，並透過 API Gateway 進行流量管理和負載均衡。Supabase 作為託管服務，將獨立於應用服務進行部署和管理。
 
-*   **繁體中文 (Traditional Chinese)**
-*   **簡體中文 (Simplified Chinese)**
-*   **英文 (English)**
-*   **日文 (Japanese)**
-*   **韓文 (Korean)**
-*   **泰文 (Thai)**
-*   **越南文 (Vietnamese)**
-
-多語言支援將透過國際化 (i18n) 和本地化 (l10n) 機制實現，確保內容的準確性和文化適應性。使用者可根據自身偏好選擇顯示語言。
-
-## 7. 部署架構
-
-聚合支付平台將採用基於容器化技術（如 Docker）和容器編排平台（如 Kubernetes）的部署架構，以實現高可用性、可擴展性和自動化管理。
-
-1.  **生產環境 (Production Environment)**：
-    *   **多區域部署**：為確保高可用性和災難恢復能力，系統將部署在多個地理區域的資料中心。
-    *   **微服務部署**：每個微服務將獨立打包為 Docker 容器，並部署在 Kubernetes 集群中。
-    *   **負載均衡**：透過負載均衡器將流量分發到不同的服務實例，確保系統的穩定運行。
-    *   **自動擴縮**：根據流量負載自動擴縮服務實例，以應對業務高峰。
-    *   **監控與日誌**：整合 Prometheus、Grafana 進行系統監控，ELK Stack (Elasticsearch, Logstash, Kibana) 進行日誌管理與分析。
-    *   **資料庫高可用**：資料庫將採用主從複製、分片等技術，確保資料的高可用性和一致性。
-
-2.  **開發與測試環境 (Development & Testing Environment)**：
-    *   提供獨立的開發和測試環境，與生產環境隔離，便於開發人員進行功能開發、測試和調試。
-    *   採用 CI/CD (持續整合/持續部署) 流程，實現程式碼的自動化建構、測試和部署。
-
-![部署架構圖](./deployment-architecture.png)
-
-## 8. 安全考量
-
-支付平台的安全性至關重要，系統設計將全面考慮以下安全措施：
-
-*   **資料加密**：所有敏感資料（如使用者憑證、交易資訊）在傳輸和儲存過程中都將進行加密。
-*   **身份驗證與授權**：採用 OAuth2.0 或 JWT 進行 API 訪問的身份驗證與授權管理。
-*   **防火牆與網路隔離**：透過防火牆和網路隔離技術，限制未經授權的訪問。
-*   **入侵檢測與防禦**：部署入侵檢測系統 (IDS) 和入侵防禦系統 (IPS)，實時監控和阻止惡意攻擊。
-*   **安全審計**：定期進行安全審計和漏洞掃描，及時發現和修復安全漏洞。
-*   **日誌審計**：所有關鍵操作都將記錄日誌，便於追溯和審計。
-
-## 9. 性能與擴展性
-
-為確保平台能夠處理高併發交易並支援未來業務增長，系統將具備以下性能與擴展性特點：
-
-*   **微服務架構**：各服務獨立部署，可獨立擴展，避免單點故障。
-*   **非同步處理**：採用訊息佇列（如 Kafka, RabbitMQ）實現交易的非同步處理，提高系統吞吐量。
-*   **快取機制**：引入 Redis 等快取服務，減少資料庫負載，提高資料讀取速度。
-*   **資料庫優化**：採用資料庫分庫分表、索引優化等技術，提升資料庫性能。
-*   **負載均衡**：透過負載均衡器分散請求，提高系統的併發處理能力。
-
-## 10. 總結
-
-本聚合支付平台系統架構設計文件詳細闡述了平台的整體架構、核心模組、API 規格、資料流、多語言支援、部署架構、安全考量以及性能與擴展性。透過採用微服務、容器化、高可用性部署等先進技術，本平台將能夠提供一個穩定、高效、安全且易於擴展的支付解決方案，為商戶和代理商創造更大的價值。
+![部署架構圖](https://private-us-east-1.manuscdn.com/sessionFile/FhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBheS1yZXBvL2RvY3Mvc3lzdGVtLWFyY2hpdGVjdHVyZQ.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvFhJEJG6CL5jBPkbv6HQivG/sandbox/62lJPyK1zZlOxVwgJUbcAw-images_1771436684506_na1fn_L2hvbWUvdWJ1bnR1L2JpdHBheS1yZXBvL2RvY3Mvc3lzdGVtLWFyY2hpdGVjdHVyZQ.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRmhKRUpHNkNMNWpCUGbidjZIUWl2Ry9zYW5kYm94LzYybEpQeUsxelpsT3hWd2dKVWJjQXctaW1hZ2VzXzE3NzE0MzY2ODQ1MDZfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwySnBkSEJoZVMxeVpYQnZMMlJ2WTNNdmMzbHpkR1Z0TFdGeVkyaHBkR1ZqZEhWeVpRLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=qOmwCFjv8mPYuImH9lI1JVoisKK0i~l9mgN9XuGA9ZFBzrUlYJONfic5cZO41UKbobM0KlC1U9bVMR3oCSE~hEf7goR3VXNytXB0lLgExaRLzLxYE~~vRG0chepYwBZH957cqFJxDPtlHyg7bw~zWGJR~cxn21BAWR1e8lN0U4kTr4hsH5sJzwv4d8wtZX-QmC16TIfFQ~DUJjtLQI~j8Y8Qa31H~-QUMgO90Jy0MgoQC7xVwWxdibSuo~6JMLOcRN2WFhl~fyHqKetgCS8UxYn196xfrQCWObv6BZmfEYadof41BbzZQ9pBMdIj-fuqoB6cgRnAtaIwlXo4WO9D9w__)

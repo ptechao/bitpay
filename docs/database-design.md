@@ -10,7 +10,7 @@
 
 **相關模組**：支付引擎、通道管理、代理管理、商戶管理、結算系統、風控模組。
 
-**技術棧**：資料庫採用 PostgreSQL + Redis + MongoDB。本文件主要聚焦於 PostgreSQL 的關聯式資料庫設計。
+**技術棧**：資料庫採用 **Supabase (PostgreSQL)** + Redis + MongoDB。本文件主要聚焦於 Supabase 提供的 PostgreSQL 關聯式資料庫設計，並整合 Supabase Auth 與 RLS (Row Level Security) 功能。
 
 ## 1. 核心需求與多語言支援
 
@@ -586,3 +586,56 @@ Redis 作為記憶體資料庫，提供極高的讀寫性能，適合用於快�
 [2]: Mermaid Documentation: [https://mermaid.js.org/](https://mermaid.js.org/)
 [3]: MongoDB Documentation: [https://www.mongodb.com/docs/](https://www.mongodb.com/docs/)
 [4]: Redis Documentation: [https://redis.io/docs/](https://redis.io/docs/)
+
+
+## 3. Supabase Auth 與 RLS 策略
+
+### 3.1 Supabase Auth 整合
+
+平台將利用 Supabase Auth 作為主要的身份驗證服務。Supabase Auth 提供了開箱即用的使用者管理功能，包括電子郵件/密碼登入、OAuth 整合等。使用者成功登入後，Supabase 會發放一個 JSON Web Token (JWT)，此 JWT 將包含使用者的 `uuid` 和 `role` 等資訊。後端服務在接收到前端請求時，會驗證此 JWT 的有效性，並從中提取使用者資訊，用於後續的業務邏輯處理和資料庫權限控制。
+
+**整合要點**：
+*   **使用者表映射**：Supabase Auth 預設的 `auth.users` 表將作為平台所有使用者（管理員、代理、商戶）的基礎身份資訊來源。平台自身的 `users` 表（`public.users`）將透過 `uuid` 欄位與 `auth.users.id` 進行關聯，以儲存額外的業務相關資訊。
+*   **JWT 傳遞**：前端應用在發送 API 請求時，需在 `Authorization` 頭部攜帶 Supabase Auth 返回的 JWT。
+*   **後端驗證**：各微服務將使用 Supabase Client SDK 提供的功能，自動驗證 JWT 的有效性，並從中解析出使用者資訊。
+
+### 3.2 Row Level Security (RLS) 策略
+
+Supabase 的核心優勢之一是其基於 PostgreSQL 的 Row Level Security (RLS) 功能。RLS 允許在資料庫層面定義精細的資料存取策略，確保使用者只能看到和操作他們有權限的資料行。結合 Supabase Auth 提供的 JWT，我們可以實現強大的、基於角色的資料存取控制。
+
+**RLS 實作原則**：
+*   **預設拒絕**：對於所有敏感資料表，預設啟用 RLS 並設定為拒絕所有存取，除非有明確的策略允許。
+*   **基於 JWT 的策略**：RLS 策略將利用 `auth.jwt()` 函數從 JWT 中提取使用者資訊（如 `uid`、`role`），並據此判斷資料存取權限。
+*   **角色區分**：為不同的使用者角色（`anon`、`authenticated`、`service_role`、`admin`、`agent`、`merchant`）定義不同的 RLS 策略。
+    *   `anon` 角色：用於未經身份驗證的公開存取，權限極低。
+    *   `authenticated` 角色：用於已登入的使用者，根據其 `uuid` 和 `role` 進行資料存取。
+    *   `service_role` 角色：Supabase 提供的超級使用者角色，擁有所有權限，僅限後端服務在特定情況下使用，需嚴格保護其金鑰。
+*   **策略範例**：
+    *   **商戶資料存取**：商戶只能存取其自己的交易記錄、配置資訊等。RLS 策略將檢查 `merchant_id` 欄位是否與當前登入使用者的 `uuid` 相關聯。
+    *   **代理資料存取**：代理商可以存取其自己的資訊，以及其下級代理和商戶的相關數據。RLS 策略將涉及檢查代理層級關係表。
+    *   **管理員資料存取**：管理員擁有最高權限，可以存取所有資料，但仍建議透過 RLS 限制其對敏感操作的直接資料庫存取，鼓勵透過後台管理介面進行操作。
+
+**RLS 策略定義範例 (PostgreSQL)**：
+
+```sql
+-- 啟用 RLS
+ALTER TABLE public.merchants ENABLE ROW LEVEL SECURITY;
+
+-- 創建策略：允許已認證使用者查看自己的商戶資料
+CREATE POLICY "Merchants can view their own data" ON public.merchants
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- 創建策略：允許已認證使用者更新自己的商戶資料
+CREATE POLICY "Merchants can update their own data" ON public.merchants
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- 創建策略：允許管理員查看所有商戶資料 (假設 admin 角色)
+CREATE POLICY "Admins can view all merchants" ON public.merchants
+  FOR SELECT TO authenticated USING (auth.role() = 'admin');
+
+-- 創建策略：允許代理商查看其下級商戶資料 (需要更複雜的 JOIN 查詢)
+CREATE POLICY "Agents can view their subordinate merchants" ON public.merchants
+  FOR SELECT TO authenticated USING (
+    EXISTS (SELECT 1 FROM public.agent_hierarchy ah WHERE ah.ancestor_id = (SELECT id FROM public.agents WHERE user_id = auth.uid()) AND ah.descendant_id = public.merchants.parent_agent_id)
+  );
+```
