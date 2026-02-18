@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS merchants (
     contact_person VARCHAR(255),
     contact_email VARCHAR(255),
     status VARCHAR(50) NOT NULL DEFAULT 'pending', -- 'pending', 'active', 'inactive'
+    settlement_cycle_type VARCHAR(10) NOT NULL DEFAULT 'D', -- 'D' (自然日), 'T' (交易日)
+    settlement_cycle_value INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -46,8 +48,11 @@ CREATE TABLE IF NOT EXISTS agents (
     name VARCHAR(255) NOT NULL,
     contact_person VARCHAR(255),
     contact_email VARCHAR(255),
-    commission_rate NUMERIC(5, 4) DEFAULT 0.0000, -- 佣金比例
     status VARCHAR(50) NOT NULL DEFAULT 'active',
+    parent_agent_id UUID REFERENCES agents(id) ON DELETE SET NULL,
+    commission_rate_type VARCHAR(50) NOT NULL DEFAULT 'percentage', -- 'percentage', 'fixed', 'markup'
+    base_commission_rate NUMERIC(5, 4) DEFAULT 0.0000,
+    markup_rate NUMERIC(5, 4) DEFAULT 0.0000,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -62,6 +67,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     type VARCHAR(50) NOT NULL, -- 'payment', 'refund', 'withdrawal'
     status VARCHAR(50) NOT NULL DEFAULT 'pending', -- 'pending', 'success', 'failed', 'refunded'
     channel_id UUID, -- 支付通道ID，待定義 channel 表後添加外鍵
+    settlement_id UUID REFERENCES settlements(id) ON DELETE SET NULL,
     transaction_ref VARCHAR(255) UNIQUE NOT NULL, -- 外部交易參考號
     metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -174,10 +180,116 @@ DO $$
 DECLARE
     t record;
 BEGIN
-    FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('users', 'merchants', 'merchant_accounts', 'agents', 'transactions', 'payments', 'settlements', 'risk_rules', 'channels')
+    FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('users', 'merchants', 'merchant_accounts', 'agents', 'transactions', 'payments', 'settlements', 'risk_rules', 'channels', 'agent_accounts', 'commission_records', 'roles', 'permissions')
     LOOP
         EXECUTE format('DROP TRIGGER IF EXISTS set_updated_at ON %I;', t.tablename);
         EXECUTE format('CREATE TRIGGER set_updated_at BEFORE UPDATE ON %I FROM EACH ROW EXECUTE FUNCTION update_updated_at_column();', t.tablename);
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 12. 訂單狀態日誌表 (order_status_logs)
+CREATE TABLE IF NOT EXISTS order_status_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    order_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
+    old_status VARCHAR(50) NOT NULL,
+    new_status VARCHAR(50) NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_status_logs_order_id ON order_status_logs(order_id);
+
+-- 13. 代理商帳戶表 (agent_accounts)
+CREATE TABLE IF NOT EXISTS agent_accounts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    agent_id UUID UNIQUE REFERENCES agents(id) ON DELETE CASCADE,
+    balance NUMERIC(18, 4) DEFAULT 0.0000,
+    frozen_amount NUMERIC(18, 4) DEFAULT 0.0000,
+    currency VARCHAR(10) NOT NULL DEFAULT 'CNY',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_accounts_agent_id ON agent_accounts(agent_id);
+
+-- 14. 分潤記錄表 (commission_records)
+CREATE TABLE IF NOT EXISTS commission_records (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
+    agent_id UUID REFERENCES agents(id) ON DELETE SET NULL,
+    commission_amount NUMERIC(18, 4) NOT NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'CNY',
+    commission_type VARCHAR(50) NOT NULL, -- 'percentage', 'fixed', 'markup'
+    commission_rate NUMERIC(5, 4) DEFAULT 0.0000,
+    markup_rate NUMERIC(5, 4) DEFAULT 0.0000,
+    level INTEGER NOT NULL, -- 代理層級
+    status VARCHAR(50) NOT NULL DEFAULT 'pending', -- 'pending', 'settled'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_commission_records_agent_id ON commission_records(agent_id);
+CREATE INDEX IF NOT EXISTS idx_commission_records_transaction_id ON commission_records(transaction_id);
+
+-- 15. 操作日誌表 (audit_logs)
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    operator_id UUID, -- 操作者 ID (可以是 user_id, merchant_id, agent_id)
+    operator_role VARCHAR(50) NOT NULL, -- 操作者角色 (e.g., admin, merchant, agent)
+    action_type VARCHAR(50) NOT NULL, -- 操作類型 (e.g., CREATE, UPDATE, DELETE, READ)
+    target_entity VARCHAR(100) NOT NULL, -- 操作目標實體 (e.g., order, merchant, agent, channel)
+    target_id UUID, -- 操作目標實體 ID
+    request_params JSONB, -- 請求參數
+    ip_address INET, -- IP 位址
+    action_result VARCHAR(20) NOT NULL, -- 操作結果 (e.g., success, failed)
+    error_message TEXT, -- 錯誤訊息 (如果操作失敗)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_operator_id ON audit_logs(operator_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action_type ON audit_logs(action_type);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_target_entity ON audit_logs(target_entity);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+
+-- 16. 角色表 (roles)
+CREATE TABLE IF NOT EXISTS roles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(50) UNIQUE NOT NULL, -- 角色名稱 (e.g., Super Admin, Merchant Admin, Agent Manager)
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 17. 權限表 (permissions)
+CREATE TABLE IF NOT EXISTS permissions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) UNIQUE NOT NULL, -- 權限名稱 (e.g., order.view, settlement.withdraw)
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 18. 角色-權限關聯表 (role_permissions)
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 19. 使用者-角色關聯表 (user_roles)
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 為常用查詢欄位建立索引以提高性能
+CREATE INDEX IF NOT EXISTS idx_roles_name ON roles(name);
+CREATE INDEX IF NOT EXISTS idx_permissions_name ON permissions(name);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_role_id ON role_permissions(role_id);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permissions(permission_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
