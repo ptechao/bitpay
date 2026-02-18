@@ -1,0 +1,284 @@
+
+/**
+ * @file docker-compose.yml
+ * @description 聚合支付平台開發環境的 Docker Compose 配置檔案。
+ *              定義了 PostgreSQL、Redis、多個微服務、前端應用和 Nginx 反向代理服務。
+ * @author Manus AI
+ * @date 2026-02-19
+ */
+
+version: '3.8'
+
+services:
+  # PostgreSQL 資料庫服務
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: bitpay_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d bitpay_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis 快取和訊息佇列服務
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 微服務範例 1: 沙盒服務 (已在任務一中部分實現)
+  sandbox-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder # 使用多階段構建的後端階段
+    restart: always
+    environment:
+      NODE_ENV: development
+      SANDBOX_SERVICE_PORT: 3001
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app # 開發環境掛載程式碼，方便熱重載
+      - /app/node_modules # 避免覆蓋 node_modules
+    command: npm run dev # 假設有開發模式啟動命令
+
+  # 微服務範例 2: 支付服務 (佔位符)
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      PAYMENT_SERVICE_PORT: 3002
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 微服務範例 3: 用戶服務 (佔位符)
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      USER_SERVICE_PORT: 3003
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 微服務範例 4: 商戶服務 (佔位符)
+  merchant-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      MERCHANT_SERVICE_PORT: 3004
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 微服務範例 5: 代理商服務 (佔位符)
+  agent-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      AGENT_SERVICE_PORT: 3005
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 微服務範例 6: 報告服務 (佔位符)
+  report-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      REPORT_SERVICE_PORT: 3006
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3006:3006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 微服務範例 7: 通知服務 (佔位符)
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      NOTIFICATION_SERVICE_PORT: 3007
+      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+    ports:
+      - "3007:3007"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # 前端應用範例 1: 商戶門戶 (已在任務一中部分實現)
+  merchant-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-builder # 使用多階段構建的前端階段
+    restart: always
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      REACT_APP_API_BASE_URL: http://localhost:80
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./portals/merchant-portal/client:/app/portals/merchant-portal/client # 開發環境掛載程式碼
+      - /app/portals/merchant-portal/client/node_modules # 避免覆蓋 node_modules
+    command: npm start # 假設有開發模式啟動命令
+
+  # 前端應用範例 2: 管理員門戶 (佔位符)
+  admin-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      PORT: 3008
+      REACT_APP_API_BASE_URL: http://localhost:80
+    ports:
+      - "3008:3008"
+    volumes:
+      - ./portals/admin-portal/client:/app/portals/admin-portal/client
+      - /app/portals/admin-portal/client/node_modules
+    command: npm start
+
+  # 前端應用範例 3: 代理商門戶 (佔位符)
+  agent-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-builder
+    restart: always
+    environment:
+      NODE_ENV: development
+      PORT: 3009
+      REACT_APP_API_BASE_URL: http://localhost:80
+    ports:
+      - "3009:3009"
+    volumes:
+      - ./portals/agent-portal/client:/app/portals/agent-portal/client
+      - /app/portals/agent-portal/client/node_modules
+    command: npm start
+
+  # Nginx 反向代理服務
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro # 假設有 SSL 憑證
+    depends_on:
+      - sandbox-service
+      - payment-service
+      - user-service
+      - merchant-service
+      - agent-service
+      - report-service
+      - notification-service
+      - merchant-portal
+      - admin-portal
+      - agent-portal
+
+volumes:
+  postgres_data:
+  redis_data:
