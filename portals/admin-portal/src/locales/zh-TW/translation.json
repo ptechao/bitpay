@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "提交",
+    "cancel": "取消",
+    "edit": "編輯",
+    "delete": "刪除",
+    "add": "新增",
+    "status": "狀態",
+    "active": "啟用",
+    "inactive": "停用",
+    "search": "搜尋",
+    "reset": "重置",
+    "action": "操作",
+    "detail": "詳情",
+    "success": "成功",
+    "failed": "失敗",
+    "pending": "待處理",
+    "enabled": "已啟用",
+    "disabled": "已停用"
+  },
+  "login": {
+    "title": "管理員登入",
+    "username": "使用者名稱",
+    "password": "密碼",
+    "loginButton": "登入"
+  },
+  "dashboard": {
+    "title": "儀表板",
+    "totalTransactions": "總交易量",
+    "totalAmount": "總交易額",
+    "successRate": "成功率",
+    "channelStatus": "通道狀態"
+  },
+  "merchant": {
+    "title": "商戶管理",
+    "merchantList": "商戶列表",
+    "addMerchant": "新增商戶",
+    "editMerchant": "編輯商戶",
+    "merchantName": "商戶名稱",
+    "contactPerson": "聯絡人",
+    "contactEmail": "聯絡信箱",
+    "status": "商戶狀態",
+    "settlementPeriod": "結算週期",
+    "review": "審核",
+    "enable": "啟用",
+    "disable": "停用"
+  },
+  "agent": {
+    "title": "代理管理",
+    "agentList": "代理列表",
+    "addAgent": "新增代理",
+    "editAgent": "編輯代理",
+    "agentName": "代理名稱",
+    "commissionRule": "分潤規則",
+    "hierarchyTree": "代理層級樹"
+  },
+  "channel": {
+    "title": "通道管理",
+    "channelList": "通道列表",
+    "addChannel": "新增通道",
+    "editChannel": "編輯通道",
+    "channelName": "通道名稱",
+    "currencyConfig": "幣種配置",
+    "monitor": "通道監控"
+  },
+  "order": {
+    "title": "訂單管理",
+    "orderList": "支付訂單列表",
+    "orderDetail": "訂單詳情",
+    "refundManagement": "退款管理"
+  },
+  "settlement": {
+    "title": "結算管理",
+    "settlementList": "結算單列表",
+    "manualSettlement": "手動觸發結算",
+    "withdrawalReview": "提現審核"
+  },
+  "risk": {
+    "title": "風控管理",
+    "ruleConfig": "風控規則配置",
+    "blacklistWhitelist": "黑白名單管理"
+  },
+  "system": {
+    "title": "系統設定",
+    "adminAccount": "管理員帳號管理",
+    "rolePermission": "角色權限",
+    "systemParams": "系統參數"
+  }
+}

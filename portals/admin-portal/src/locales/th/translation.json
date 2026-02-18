@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "ส่ง",
+    "cancel": "ยกเลิก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "add": "เพิ่ม",
+    "status": "สถานะ",
+    "active": "ใช้งาน",
+    "inactive": "ไม่ใช้งาน",
+    "search": "ค้นหา",
+    "reset": "รีเซ็ต",
+    "action": "การดำเนินการ",
+    "detail": "รายละเอียด",
+    "success": "สำเร็จ",
+    "failed": "ล้มเหลว",
+    "pending": "รอดำเนินการ",
+    "enabled": "เปิดใช้งานแล้ว",
+    "disabled": "ปิดใช้งานแล้ว"
+  },
+  "login": {
+    "title": "เข้าสู่ระบบผู้ดูแลระบบ",
+    "username": "ชื่อผู้ใช้",
+    "password": "รหัสผ่าน",
+    "loginButton": "เข้าสู่ระบบ"
+  },
+  "dashboard": {
+    "title": "แดชบอร์ด",
+    "totalTransactions": "ยอดรวมการทำธุรกรรม",
+    "totalAmount": "ยอดรวม",
+    "successRate": "อัตราความสำเร็จ",
+    "channelStatus": "สถานะช่องทาง"
+  },
+  "merchant": {
+    "title": "การจัดการร้านค้า",
+    "merchantList": "รายการร้านค้า",
+    "addMerchant": "เพิ่มร้านค้า",
+    "editMerchant": "แก้ไขร้านค้า",
+    "merchantName": "ชื่อร้านค้า",
+    "contactPerson": "ผู้ติดต่อ",
+    "contactEmail": "อีเมลผู้ติดต่อ",
+    "status": "สถานะร้านค้า",
+    "settlementPeriod": "รอบการชำระเงิน",
+    "review": "ตรวจสอบ",
+    "enable": "เปิดใช้งาน",
+    "disable": "ปิดใช้งาน"
+  },
+  "agent": {
+    "title": "การจัดการตัวแทน",
+    "agentList": "รายการตัวแทน",
+    "addAgent": "เพิ่มตัวแทน",
+    "editAgent": "แก้ไขตัวแทน",
+    "agentName": "ชื่อตัวแทน",
+    "commissionRule": "กฎค่าคอมมิชชั่น",
+    "hierarchyTree": "โครงสร้างลำดับชั้นตัวแทน"
+  },
+  "channel": {
+    "title": "การจัดการช่องทาง",
+    "channelList": "รายการช่องทาง",
+    "addChannel": "เพิ่มช่องทาง",
+    "editChannel": "แก้ไขช่องทาง",
+    "channelName": "ชื่อช่องทาง",
+    "currencyConfig": "การกำหนดค่าสกุลเงิน",
+    "monitor": "การตรวจสอบช่องทาง"
+  },
+  "order": {
+    "title": "การจัดการคำสั่งซื้อ",
+    "orderList": "รายการคำสั่งซื้อการชำระเงิน",
+    "orderDetail": "รายละเอียดคำสั่งซื้อ",
+    "refundManagement": "การจัดการการคืนเงิน"
+  },
+  "settlement": {
+    "title": "การจัดการการชำระเงิน",
+    "settlementList": "รายการการชำระเงิน",
+    "manualSettlement": "การชำระเงินด้วยตนเอง",
+    "withdrawalReview": "การตรวจสอบการถอน"
+  },
+  "risk": {
+    "title": "การจัดการความเสี่ยง",
+    "ruleConfig": "การกำหนดค่ากฎความเสี่ยง",
+    "blacklistWhitelist": "การจัดการบัญชีดำ/บัญชีขาว"
+  },
+  "system": {
+    "title": "การตั้งค่าระบบ",
+    "adminAccount": "การจัดการบัญชีผู้ดูแลระบบ",
+    "rolePermission": "บทบาทและสิทธิ์",
+    "systemParams": "พารามิเตอร์ระบบ"
+  }
+}

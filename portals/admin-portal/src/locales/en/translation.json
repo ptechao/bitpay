@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "search": "Search",
+    "reset": "Reset",
+    "action": "Action",
+    "detail": "Detail",
+    "success": "Success",
+    "failed": "Failed",
+    "pending": "Pending",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "login": {
+    "title": "Admin Login",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalTransactions": "Total Transactions",
+    "totalAmount": "Total Amount",
+    "successRate": "Success Rate",
+    "channelStatus": "Channel Status"
+  },
+  "merchant": {
+    "title": "Merchant Management",
+    "merchantList": "Merchant List",
+    "addMerchant": "Add Merchant",
+    "editMerchant": "Edit Merchant",
+    "merchantName": "Merchant Name",
+    "contactPerson": "Contact Person",
+    "contactEmail": "Contact Email",
+    "status": "Merchant Status",
+    "settlementPeriod": "Settlement Period",
+    "review": "Review",
+    "enable": "Enable",
+    "disable": "Disable"
+  },
+  "agent": {
+    "title": "Agent Management",
+    "agentList": "Agent List",
+    "addAgent": "Add Agent",
+    "editAgent": "Edit Agent",
+    "agentName": "Agent Name",
+    "commissionRule": "Commission Rule",
+    "hierarchyTree": "Agent Hierarchy Tree"
+  },
+  "channel": {
+    "title": "Channel Management",
+    "channelList": "Channel List",
+    "addChannel": "Add Channel",
+    "editChannel": "Edit Channel",
+    "channelName": "Channel Name",
+    "currencyConfig": "Currency Configuration",
+    "monitor": "Channel Monitoring"
+  },
+  "order": {
+    "title": "Order Management",
+    "orderList": "Payment Order List",
+    "orderDetail": "Order Detail",
+    "refundManagement": "Refund Management"
+  },
+  "settlement": {
+    "title": "Settlement Management",
+    "settlementList": "Settlement List",
+    "manualSettlement": "Manual Settlement",
+    "withdrawalReview": "Withdrawal Review"
+  },
+  "risk": {
+    "title": "Risk Control Management",
+    "ruleConfig": "Risk Rule Configuration",
+    "blacklistWhitelist": "Black/Whitelist Management"
+  },
+  "system": {
+    "title": "System Settings",
+    "adminAccount": "Admin Account Management",
+    "rolePermission": "Role & Permission",
+    "systemParams": "System Parameters"
+  }
+}

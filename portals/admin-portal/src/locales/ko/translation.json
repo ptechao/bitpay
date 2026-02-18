@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "제출",
+    "cancel": "취소",
+    "edit": "수정",
+    "delete": "삭제",
+    "add": "추가",
+    "status": "상태",
+    "active": "활성",
+    "inactive": "비활성",
+    "search": "검색",
+    "reset": "초기화",
+    "action": "작업",
+    "detail": "상세",
+    "success": "성공",
+    "failed": "실패",
+    "pending": "대기중",
+    "enabled": "활성화됨",
+    "disabled": "비활성화됨"
+  },
+  "login": {
+    "title": "관리자 로그인",
+    "username": "사용자 이름",
+    "password": "비밀번호",
+    "loginButton": "로그인"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "totalTransactions": "총 거래량",
+    "totalAmount": "총 거래액",
+    "successRate": "성공률",
+    "channelStatus": "채널 상태"
+  },
+  "merchant": {
+    "title": "가맹점 관리",
+    "merchantList": "가맹점 목록",
+    "addMerchant": "가맹점 추가",
+    "editMerchant": "가맹점 수정",
+    "merchantName": "가맹점 이름",
+    "contactPerson": "담당자",
+    "contactEmail": "담당자 이메일",
+    "status": "가맹점 상태",
+    "settlementPeriod": "정산 주기",
+    "review": "검토",
+    "enable": "활성화",
+    "disable": "비활성화"
+  },
+  "agent": {
+    "title": "에이전트 관리",
+    "agentList": "에이전트 목록",
+    "addAgent": "에이전트 추가",
+    "editAgent": "에이전트 수정",
+    "agentName": "에이전트 이름",
+    "commissionRule": "수수료 규칙",
+    "hierarchyTree": "에이전트 계층 구조"
+  },
+  "channel": {
+    "title": "채널 관리",
+    "channelList": "채널 목록",
+    "addChannel": "채널 추가",
+    "editChannel": "채널 수정",
+    "channelName": "채널 이름",
+    "currencyConfig": "통화 설정",
+    "monitor": "채널 모니터링"
+  },
+  "order": {
+    "title": "주문 관리",
+    "orderList": "결제 주문 목록",
+    "orderDetail": "주문 상세",
+    "refundManagement": "환불 관리"
+  },
+  "settlement": {
+    "title": "정산 관리",
+    "settlementList": "정산 목록",
+    "manualSettlement": "수동 정산",
+    "withdrawalReview": "출금 검토"
+  },
+  "risk": {
+    "title": "위험 관리",
+    "ruleConfig": "위험 규칙 설정",
+    "blacklistWhitelist": "블랙/화이트리스트 관리"
+  },
+  "system": {
+    "title": "시스템 설정",
+    "adminAccount": "관리자 계정 관리",
+    "rolePermission": "역할 및 권한",
+    "systemParams": "시스템 매개변수"
+  }
+}

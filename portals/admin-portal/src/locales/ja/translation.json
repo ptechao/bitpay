@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "送信",
+    "cancel": "キャンセル",
+    "edit": "編集",
+    "delete": "削除",
+    "add": "追加",
+    "status": "ステータス",
+    "active": "アクティブ",
+    "inactive": "非アクティブ",
+    "search": "検索",
+    "reset": "リセット",
+    "action": "操作",
+    "detail": "詳細",
+    "success": "成功",
+    "failed": "失敗",
+    "pending": "保留中",
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "login": {
+    "title": "管理者ログイン",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "loginButton": "ログイン"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "totalTransactions": "総取引量",
+    "totalAmount": "総取引額",
+    "successRate": "成功率",
+    "channelStatus": "チャネルステータス"
+  },
+  "merchant": {
+    "title": "マーチャント管理",
+    "merchantList": "マーチャントリスト",
+    "addMerchant": "マーチャント追加",
+    "editMerchant": "マーチャント編集",
+    "merchantName": "マーチャント名",
+    "contactPerson": "担当者",
+    "contactEmail": "連絡先メールアドレス",
+    "status": "マーチャントステータス",
+    "settlementPeriod": "決済期間",
+    "review": "レビュー",
+    "enable": "有効にする",
+    "disable": "無効にする"
+  },
+  "agent": {
+    "title": "エージェント管理",
+    "agentList": "エージェントリスト",
+    "addAgent": "エージェント追加",
+    "editAgent": "エージェント編集",
+    "agentName": "エージェント名",
+    "commissionRule": "コミッションルール",
+    "hierarchyTree": "エージェント階層ツリー"
+  },
+  "channel": {
+    "title": "チャネル管理",
+    "channelList": "チャネルリスト",
+    "addChannel": "チャネル追加",
+    "editChannel": "チャネル編集",
+    "channelName": "チャネル名",
+    "currencyConfig": "通貨設定",
+    "monitor": "チャネル監視"
+  },
+  "order": {
+    "title": "注文管理",
+    "orderList": "支払い注文リスト",
+    "orderDetail": "注文詳細",
+    "refundManagement": "払い戻し管理"
+  },
+  "settlement": {
+    "title": "決済管理",
+    "settlementList": "決済リスト",
+    "manualSettlement": "手動決済",
+    "withdrawalReview": "出金レビュー"
+  },
+  "risk": {
+    "title": "リスク管理",
+    "ruleConfig": "リスクルール設定",
+    "blacklistWhitelist": "ブラック/ホワイトリスト管理"
+  },
+  "system": {
+    "title": "システム設定",
+    "adminAccount": "管理者アカウント管理",
+    "rolePermission": "役割と権限",
+    "systemParams": "システムパラメータ"
+  }
+}

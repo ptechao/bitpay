@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "提交",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "add": "新增",
+    "status": "状态",
+    "active": "启用",
+    "inactive": "停用",
+    "search": "搜索",
+    "reset": "重置",
+    "action": "操作",
+    "detail": "详情",
+    "success": "成功",
+    "failed": "失败",
+    "pending": "待处理",
+    "enabled": "已启用",
+    "disabled": "已停用"
+  },
+  "login": {
+    "title": "管理员登录",
+    "username": "用户名",
+    "password": "密码",
+    "loginButton": "登录"
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "totalTransactions": "总交易量",
+    "totalAmount": "总交易额",
+    "successRate": "成功率",
+    "channelStatus": "通道状态"
+  },
+  "merchant": {
+    "title": "商户管理",
+    "merchantList": "商户列表",
+    "addMerchant": "新增商户",
+    "editMerchant": "编辑商户",
+    "merchantName": "商户名称",
+    "contactPerson": "联系人",
+    "contactEmail": "联系邮箱",
+    "status": "商户状态",
+    "settlementPeriod": "结算周期",
+    "review": "审核",
+    "enable": "启用",
+    "disable": "停用"
+  },
+  "agent": {
+    "title": "代理管理",
+    "agentList": "代理列表",
+    "addAgent": "新增代理",
+    "editAgent": "编辑代理",
+    "agentName": "代理名称",
+    "commissionRule": "分润规则",
+    "hierarchyTree": "代理层级树"
+  },
+  "channel": {
+    "title": "通道管理",
+    "channelList": "通道列表",
+    "addChannel": "新增通道",
+    "editChannel": "编辑通道",
+    "channelName": "通道名称",
+    "currencyConfig": "币种配置",
+    "monitor": "通道监控"
+  },
+  "order": {
+    "title": "订单管理",
+    "orderList": "支付订单列表",
+    "orderDetail": "订单详情",
+    "refundManagement": "退款管理"
+  },
+  "settlement": {
+    "title": "结算管理",
+    "settlementList": "结算单列表",
+    "manualSettlement": "手动触发结算",
+    "withdrawalReview": "提现审核"
+  },
+  "risk": {
+    "title": "风控管理",
+    "ruleConfig": "风控规则配置",
+    "blacklistWhitelist": "黑白名单管理"
+  },
+  "system": {
+    "title": "系统设置",
+    "adminAccount": "管理员账号管理",
+    "rolePermission": "角色权限",
+    "systemParams": "系统参数"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "common": {
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "add": "Thêm",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "search": "Tìm kiếm",
+    "reset": "Đặt lại",
+    "action": "Thao tác",
+    "detail": "Chi tiết",
+    "success": "Thành công",
+    "failed": "Thất bại",
+    "pending": "Đang chờ",
+    "enabled": "Đã bật",
+    "disabled": "Đã tắt"
+  },
+  "login": {
+    "title": "Đăng nhập quản trị",
+    "username": "Tên người dùng",
+    "password": "Mật khẩu",
+    "loginButton": "Đăng nhập"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "totalTransactions": "Tổng giao dịch",
+    "totalAmount": "Tổng số tiền",
+    "successRate": "Tỷ lệ thành công",
+    "channelStatus": "Trạng thái kênh"
+  },
+  "merchant": {
+    "title": "Quản lý người bán",
+    "merchantList": "Danh sách người bán",
+    "addMerchant": "Thêm người bán",
+    "editMerchant": "Chỉnh sửa người bán",
+    "merchantName": "Tên người bán",
+    "contactPerson": "Người liên hệ",
+    "contactEmail": "Email liên hệ",
+    "status": "Trạng thái người bán",
+    "settlementPeriod": "Chu kỳ thanh toán",
+    "review": "Xem xét",
+    "enable": "Bật",
+    "disable": "Tắt"
+  },
+  "agent": {
+    "title": "Quản lý đại lý",
+    "agentList": "Danh sách đại lý",
+    "addAgent": "Thêm đại lý",
+    "editAgent": "Chỉnh sửa đại lý",
+    "agentName": "Tên đại lý",
+    "commissionRule": "Quy tắc hoa hồng",
+    "hierarchyTree": "Cây phân cấp đại lý"
+  },
+  "channel": {
+    "title": "Quản lý kênh",
+    "channelList": "Danh sách kênh",
+    "addChannel": "Thêm kênh",
+    "editChannel": "Chỉnh sửa kênh",
+    "channelName": "Tên kênh",
+    "currencyConfig": "Cấu hình tiền tệ",
+    "monitor": "Giám sát kênh"
+  },
+  "order": {
+    "title": "Quản lý đơn hàng",
+    "orderList": "Danh sách đơn hàng thanh toán",
+    "orderDetail": "Chi tiết đơn hàng",
+    "refundManagement": "Quản lý hoàn tiền"
+  },
+  "settlement": {
+    "title": "Quản lý thanh toán",
+    "settlementList": "Danh sách thanh toán",
+    "manualSettlement": "Thanh toán thủ công",
+    "withdrawalReview": "Duyệt rút tiền"
+  },
+  "risk": {
+    "title": "Quản lý rủi ro",
+    "ruleConfig": "Cấu hình quy tắc rủi ro",
+    "blacklistWhitelist": "Quản lý danh sách đen/trắng"
+  },
+  "system": {
+    "title": "Cài đặt hệ thống",
+    "adminAccount": "Quản lý tài khoản quản trị",
+    "rolePermission": "Vai trò và quyền hạn",
+    "systemParams": "Tham số hệ thống"
+  }
+}
