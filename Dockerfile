@@ -115,7 +115,7 @@ FROM node:20-alpine AS merchant-portal-build
 
 WORKDIR /app
 COPY portals/merchant-portal/package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY portals/merchant-portal/ ./
 RUN npm run build
 
@@ -134,7 +134,7 @@ FROM node:20-alpine AS agent-portal-build
 
 WORKDIR /app
 COPY portals/agent-portal/package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY portals/agent-portal/ ./
 RUN npm run build
 
@@ -153,7 +153,7 @@ FROM node:20-alpine AS admin-portal-build
 
 WORKDIR /app
 COPY portals/admin-portal/package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY portals/admin-portal/ ./
 RUN npm run build
 
