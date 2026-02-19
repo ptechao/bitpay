@@ -102,6 +102,8 @@ CMD ["node", "services/channel-service/index.js"]
 FROM backend-base AS sandbox-service
 
 WORKDIR /app/services/sandbox-service
+COPY services/sandbox-service/package*.json ./
+RUN npm install --production
 COPY services/sandbox-service/ ./
 
 WORKDIR /app
