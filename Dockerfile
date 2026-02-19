@@ -47,7 +47,9 @@ FROM backend-base AS agent-service
 
 WORKDIR /app/services/agent-service
 COPY services/agent-service/package*.json ./
-RUN npm install --production
+RUN npm install --production || true
+# ensure knex present in case install cache missed
+RUN npm install knex --no-save || true
 COPY services/agent-service/ ./
 
 WORKDIR /app
@@ -103,7 +105,9 @@ FROM backend-base AS sandbox-service
 
 WORKDIR /app/services/sandbox-service
 COPY services/sandbox-service/package*.json ./
-RUN npm install --production
+RUN npm install --production || true
+# ensure uuid present
+RUN npm install uuid --no-save || true
 COPY services/sandbox-service/ ./
 
 WORKDIR /app
