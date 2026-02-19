@@ -1,54 +1,166 @@
-
-/**
- * @file Dockerfile
- * @description 聚合支付平台應用程式的多階段 Dockerfile。
- *              包含構建 Node.js 服務和 React 前端的步驟，以優化映像大小和構建時間。
- * @author Manus AI
- * @date 2026-02-19
- */
+# Dockerfile
+# 聚合支付平台應用程式的多階段 Dockerfile。
+# 包含構建 Node.js 後端服務和前端門戶的步驟。
 
 # -----------------------------------------------------------------------------
-# 階段 1: 構建 Node.js 服務
+# 階段 1: 後端服務基礎映像
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS backend-builder
+FROM node:20-alpine AS backend-base
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./ 
+# 複製共用模組
+COPY services/shared/ ./services/shared/
+
+# -----------------------------------------------------------------------------
+# 階段 2: Payment Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS payment-service
+
+WORKDIR /app/services/payment-service
+COPY services/payment-service/package*.json ./
 RUN npm install --production
+COPY services/payment-service/ ./
 
-COPY . .
+WORKDIR /app
+EXPOSE 3001
+CMD ["node", "services/payment-service/index.js"]
 
 # -----------------------------------------------------------------------------
-# 階段 2: 構建 React 前端 (假設 portals/merchant-portal/client 是其中一個前端)
+# 階段 3: Merchant Service
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS frontend-builder
+FROM backend-base AS merchant-service
 
-WORKDIR /app/portals/merchant-portal/client
+WORKDIR /app/services/merchant-service
+COPY services/merchant-service/package*.json ./
+RUN npm install --production
+COPY services/merchant-service/ ./
 
-COPY portals/merchant-portal/client/package.json portals/merchant-portal/client/package-lock.json ./ 
+WORKDIR /app
+EXPOSE 3002
+CMD ["node", "services/merchant-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 4: Agent Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS agent-service
+
+WORKDIR /app/services/agent-service
+COPY services/agent-service/package*.json ./
+RUN npm install --production
+COPY services/agent-service/ ./
+
+WORKDIR /app
+EXPOSE 3003
+CMD ["node", "services/agent-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 5: Settlement Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS settlement-service
+
+WORKDIR /app/services/settlement-service
+COPY services/settlement-service/package*.json ./
+RUN npm install --production
+COPY services/settlement-service/ ./
+
+WORKDIR /app
+EXPOSE 3004
+CMD ["node", "services/settlement-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 6: Risk Control Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS risk-control-service
+
+WORKDIR /app/services/risk-control-service
+COPY services/risk-control-service/package*.json ./
+RUN npm install --production
+COPY services/risk-control-service/ ./
+
+WORKDIR /app
+EXPOSE 3005
+CMD ["node", "services/risk-control-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 7: Channel Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS channel-service
+
+WORKDIR /app/services/channel-service
+COPY services/channel-service/package*.json ./
+RUN npm install --production
+COPY services/channel-service/ ./
+
+WORKDIR /app
+EXPOSE 3006
+CMD ["node", "services/channel-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 8: Sandbox Service
+# -----------------------------------------------------------------------------
+FROM backend-base AS sandbox-service
+
+WORKDIR /app/services/sandbox-service
+COPY services/sandbox-service/ ./
+
+WORKDIR /app
+EXPOSE 3007
+CMD ["node", "services/sandbox-service/index.js"]
+
+# -----------------------------------------------------------------------------
+# 階段 9: Merchant Portal 前端構建
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS merchant-portal-build
+
+WORKDIR /app
+COPY portals/merchant-portal/package*.json ./
 RUN npm install
-
-COPY portals/merchant-portal/client/ ./
+COPY portals/merchant-portal/ ./
 RUN npm run build
 
+# Merchant Portal 運行映像
+FROM node:20-alpine AS merchant-portal
+RUN npm install -g serve
+WORKDIR /app
+COPY --from=merchant-portal-build /app/dist/public ./build
+EXPOSE 3000
+CMD ["serve", "-s", "build", "-l", "3000"]
+
 # -----------------------------------------------------------------------------
-# 階段 3: 最終運行映像
+# 階段 10: Agent Portal 前端構建
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS final
+FROM node:20-alpine AS agent-portal-build
 
 WORKDIR /app
+COPY portals/agent-portal/package*.json ./
+RUN npm install
+COPY portals/agent-portal/ ./
+RUN npm run build
 
-# 從 backend-builder 階段複製 Node.js 服務的依賴和程式碼
-COPY --from=backend-builder /app/node_modules ./node_modules
-COPY --from=backend-builder /app ./ 
+# Agent Portal 運行映像
+FROM node:20-alpine AS agent-portal
+RUN npm install -g serve
+WORKDIR /app
+COPY --from=agent-portal-build /app/dist/public ./build
+EXPOSE 3008
+CMD ["serve", "-s", "build", "-l", "3008"]
 
-# 從 frontend-builder 階段複製構建好的前端靜態檔案
-COPY --from=frontend-builder /app/portals/merchant-portal/client/build ./portals/merchant-portal/client/build
+# -----------------------------------------------------------------------------
+# 階段 11: Admin Portal 前端構建
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS admin-portal-build
 
-# 暴露應用程式端口 (根據實際服務端口調整)
-EXPOSE 3000
-EXPOSE 3001
-EXPOSE 3002
+WORKDIR /app
+COPY portals/admin-portal/package*.json ./
+RUN npm install
+COPY portals/admin-portal/ ./
+RUN npm run build
 
-CMD ["node", "services/main-service/index.js"] # 假設有一個主服務入口點
+# Admin Portal 運行映像
+FROM node:20-alpine AS admin-portal
+RUN npm install -g serve
+WORKDIR /app
+COPY --from=admin-portal-build /app/build ./build
+EXPOSE 3009
+CMD ["serve", "-s", "build", "-l", "3009"]

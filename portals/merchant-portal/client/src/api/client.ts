@@ -37,7 +37,7 @@ export interface ApiErrorResponse {
  */
 const apiClient: AxiosInstance = axios.create({
   // API 基礎 URL（可從環境變數設定）
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

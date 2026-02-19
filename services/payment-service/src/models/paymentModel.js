@@ -1,7 +1,7 @@
 // 前言：此檔案定義了 Payment 微服務的資料模型，使用 Knex.js 查詢建構器與 PostgreSQL 互動。
 // 它包含了對 `transactions` 和 `payments` 表的資料庫操作方法，例如查找所有支付和創建支付。
 
-const db = require("../../src/config/db"); // 引入共用資料庫實例
+const db = require("../config/db"); // 引入共用資料庫實例
 
 const TABLE_NAME = "payments";
 

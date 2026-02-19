@@ -2,7 +2,7 @@
 // 說明：處理結算服務的業務邏輯，包括交易清算、對帳、商戶結算、代理分潤結算、D+0~T+30 結算週期處理和提現處理。
 
 const SettlementModel = require("../models/settlementModel");
-const { query } = require("../config/db");
+const knex = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 class SettlementService {

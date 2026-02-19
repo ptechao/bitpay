@@ -1,11 +1,6 @@
-
-/**
- * @file docker-compose.prod.yml
- * @description 聚合支付平台生產環境的 Docker Compose 配置檔案。
- *              優化了生產部署，使用預構建的映像，並移除了開發相關的掛載卷。
- * @author Manus AI
- * @date 2026-02-19
- */
+# docker-compose.prod.yml
+# 聚合支付平台生產環境的 Docker Compose 配置檔案。
+# 使用預構建的映像，移除開發相關的掛載卷。
 
 version: '3.8'
 
@@ -15,18 +10,18 @@ services:
     image: postgres:14-alpine
     restart: always
     environment:
-      POSTGRES_DB: bitpay_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d bitpay_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # Redis 快取和訊息佇列服務
+  # Redis 快取服務
   redis:
     image: redis:7-alpine
     restart: always
@@ -38,140 +33,212 @@ services:
       timeout: 3s
       retries: 5
 
-  # 微服務範例 1: 沙盒服務
-  sandbox-service:
-    image: bitpay/sandbox-service:latest # 假設已構建並推送到容器註冊表
-    restart: always
-    environment:
-      NODE_ENV: production
-      SANDBOX_SERVICE_PORT: 3001
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: node services/sandbox-service/index.js
-
-  # 微服務範例 2: 支付服務
+  # 支付服務
   payment-service:
-    image: bitpay/payment-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payment-service
     restart: always
     environment:
       NODE_ENV: production
-      PAYMENT_SERVICE_PORT: 3002
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+      PORT: 3001
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: node services/payment-service/index.js
 
-  # 微服務範例 3: 用戶服務
-  user-service:
-    image: bitpay/user-service:latest
-    restart: always
-    environment:
-      NODE_ENV: production
-      USER_SERVICE_PORT: 3003
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: node services/user-service/index.js
-
-  # 微服務範例 4: 商戶服務
+  # 商戶服務
   merchant-service:
-    image: bitpay/merchant-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: merchant-service
     restart: always
     environment:
       NODE_ENV: production
-      MERCHANT_SERVICE_PORT: 3004
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+      PORT: 3002
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: node services/merchant-service/index.js
 
-  # 微服務範例 5: 代理商服務
+  # 代理商服務
   agent-service:
-    image: bitpay/agent-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent-service
     restart: always
     environment:
       NODE_ENV: production
-      AGENT_SERVICE_PORT: 3005
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+      PORT: 3003
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: node services/agent-service/index.js
 
-  # 微服務範例 6: 報告服務
-  report-service:
-    image: bitpay/report-service:latest
+  # 結算服務
+  settlement-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: settlement-service
     restart: always
     environment:
       NODE_ENV: production
-      REPORT_SERVICE_PORT: 3006
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+      PORT: 3004
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: node services/report-service/index.js
 
-  # 微服務範例 7: 通知服務
-  notification-service:
-    image: bitpay/notification-service:latest
+  # 風控服務
+  risk-control-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: risk-control-service
     restart: always
     environment:
       NODE_ENV: production
-      NOTIFICATION_SERVICE_PORT: 3007
-      DATABASE_URL: postgres://user:password@postgres:5432/bitpay_db
+      PORT: 3005
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: node services/notification-service/index.js
 
-  # 前端應用範例 1: 商戶門戶
+  # 通道服務
+  channel-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: channel-service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 沙盒服務
+  sandbox-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: sandbox-service
+    restart: always
+    environment:
+      NODE_ENV: production
+      SANDBOX_SERVICE_PORT: 3007
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DATABASE: ${PG_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 商戶門戶
   merchant-portal:
-    image: bitpay/merchant-portal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: merchant-portal
     restart: always
     environment:
       NODE_ENV: production
       PORT: 3000
-      REACT_APP_API_BASE_URL: https://bitpay.gocc.store
-    command: serve -s build -l 3000 # 假設使用 serve 來提供靜態檔案
 
-  # 前端應用範例 2: 管理員門戶
-  admin-portal:
-    image: bitpay/admin-portal:latest
+  # Agent 門戶
+  agent-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: agent-portal
     restart: always
     environment:
       NODE_ENV: production
       PORT: 3008
-      REACT_APP_API_BASE_URL: https://bitpay.gocc.store
-    command: serve -s build -l 3008
 
-  # 前端應用範例 3: 代理商門戶
-  agent-portal:
-    image: bitpay/agent-portal:latest
+  # 管理員門戶
+  admin-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: admin-portal
     restart: always
     environment:
       NODE_ENV: production
       PORT: 3009
-      REACT_APP_API_BASE_URL: https://bitpay.gocc.store
-    command: serve -s build -l 3009
 
   # Nginx 反向代理服務
   nginx:
@@ -182,15 +249,15 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro # 假設有 SSL 憑證
+      - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
-      - sandbox-service
       - payment-service
-      - user-service
       - merchant-service
       - agent-service
-      - report-service
-      - notification-service
+      - settlement-service
+      - risk-control-service
+      - channel-service
+      - sandbox-service
       - merchant-portal
       - admin-portal
       - agent-portal

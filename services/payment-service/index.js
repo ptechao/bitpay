@@ -4,9 +4,9 @@
 
 require("dotenv").config();
 const express = require("express");
-const db = require("../../src/config/db"); // 引入共用資料庫配置
+const db = require("../shared/config/database"); // 引入共用資料庫配置
 const jwtAuth = require("../shared/middlewares/jwtAuth"); // 引入 JWT 認證中間件
-const paymentRoutes = require("./routes/paymentRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 
 const app = express();
 const PORT = process.env.PAYMENT_SERVICE_PORT || 3001;

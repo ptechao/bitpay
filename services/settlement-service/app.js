@@ -5,13 +5,13 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const settlementRoutes = require("./src/routes/settlementRoutes");
-const { connectDB } = require("./src/config/db");
+const db = require("./src/config/db");
 const { connectRedis } = require("./src/config/redis");
 const errorHandler = require("./src/middlewares/errorHandler");
 const { startSettlementJob } = require("./src/jobs/settlementJob");
 
 // 連接資料庫和 Redis
-connectDB();
+db.raw("SELECT 1").then(() => console.log("DB connected")).catch(err => console.error("DB connection failed:", err));
 connectRedis();
 
 // 中介軟體

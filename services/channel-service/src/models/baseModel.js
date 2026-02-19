@@ -5,12 +5,12 @@
  * @author Manus AI
  */
 
-const { pool } = require("../config/db");
+const knex = require("../config/db");
 
 class BaseModel {
   constructor(tableName) {
     this.tableName = tableName;
-    this.pool = pool; // 將 pool 賦值給實例，以便子類和實例方法訪問
+    this.knex = knex; // 將 pool 賦值給實例，以便子類和實例方法訪問
   }
 
   /**
@@ -20,7 +20,7 @@ class BaseModel {
    */
   async findById(id) {
     const query = `SELECT * FROM ${this.tableName} WHERE id = $1`;
-    const { rows } = await this.pool.query(query, [id]);
+    const { rows } = await this.knex.query(query, [id]);
     return rows[0] || null;
   }
 
@@ -30,7 +30,7 @@ class BaseModel {
    */
   async findAll() {
     const query = `SELECT * FROM ${this.tableName}`;
-    const { rows } = await this.pool.query(query);
+    const { rows } = await this.knex.query(query);
     return rows;
   }
 
@@ -44,7 +44,7 @@ class BaseModel {
     const values = Object.values(conditions);
     const whereClause = keys.map((key, index) => `${key} = $${index + 1}`).join(" AND ");
     const query = `SELECT * FROM ${this.tableName} WHERE ${whereClause}`;
-    const { rows } = await this.pool.query(query, values);
+    const { rows } = await this.knex.query(query, values);
     return rows;
   }
 
@@ -58,7 +58,7 @@ class BaseModel {
     const values = Object.values(data);
     const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ");
     const query = `INSERT INTO ${this.tableName} (${keys.join(", ")}) VALUES (${placeholders}) RETURNING *`;
-    const { rows } = await this.pool.query(query, values);
+    const { rows } = await this.knex.query(query, values);
     return rows[0];
   }
 
@@ -73,7 +73,7 @@ class BaseModel {
     const values = Object.values(data);
     const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ");
     const query = `UPDATE ${this.tableName} SET ${setClause} WHERE id = $${keys.length + 1} RETURNING *`;
-    const { rows } = await this.pool.query(query, [...values, id]);
+    const { rows } = await this.knex.query(query, [...values, id]);
     return rows[0] || null;
   }
 
@@ -84,7 +84,7 @@ class BaseModel {
    */
   async delete(id) {
     const query = `DELETE FROM ${this.tableName} WHERE id = $1 RETURNING *`;
-    const { rows } = await this.pool.query(query, [id]);
+    const { rows } = await this.knex.query(query, [id]);
     return rows[0] || null;
   }
 }

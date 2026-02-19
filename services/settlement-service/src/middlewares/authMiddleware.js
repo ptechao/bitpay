@@ -2,7 +2,7 @@
 // 說明：提供 JWT 認證和實體權限檢查的中介軟體。
 
 const jwt = require("jsonwebtoken");
-const { query } = require("../config/db");
+const knex = require("../config/db");
 
 // JWT 認證中介軟體
 const authenticateJWT = (req, res, next) => {

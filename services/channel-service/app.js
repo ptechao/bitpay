@@ -11,11 +11,11 @@ const app = express();
 const bodyParser = require("body-parser");
 const channelRoutes = require("./src/routes/channelRoutes");
 const { errorHandler } = require("./src/middlewares/errorHandler");
-const { connectDB } = require("./src/config/db");
+const db = require("./src/config/db");
 const { connectRedis } = require("./src/config/redis");
 
 // 連接資料庫
-connectDB();
+db.raw("SELECT 1").then(() => console.log("DB connected")).catch(err => console.error("DB connection failed:", err));
 // 連接 Redis
 connectRedis();
 

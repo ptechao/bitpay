@@ -1,0 +1,32 @@
+{
+  "name": "bitpay-platform",
+  "version": "1.0.0",
+  "description": "聚合支付平台 - 基於微服務架構的支付解決方案",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:services && npm run install:portals",
+    "install:services": "cd services/payment-service && npm install && cd ../merchant-service && npm install && cd ../agent-service && npm install && cd ../settlement-service && npm install && cd ../risk-control-service && npm install && cd ../channel-service && npm install",
+    "install:portals": "cd portals/merchant-portal && npm install && cd ../agent-portal && npm install && cd ../admin-portal && npm install",
+    "start:payment": "cd services/payment-service && npm start",
+    "start:merchant": "cd services/merchant-service && npm start",
+    "start:agent": "cd services/agent-service && npm start",
+    "start:settlement": "cd services/settlement-service && npm start",
+    "start:risk-control": "cd services/risk-control-service && npm start",
+    "start:channel": "cd services/channel-service && npm start",
+    "start:sandbox": "cd services/sandbox-service && node index.js",
+    "start:merchant-portal": "cd portals/merchant-portal && npm run dev",
+    "start:agent-portal": "cd portals/agent-portal && npm run dev",
+    "start:admin-portal": "cd portals/admin-portal && npm start",
+    "docker:dev": "docker compose up --build",
+    "docker:dev:d": "docker compose up --build -d",
+    "docker:prod": "docker compose -f docker-compose.prod.yml up --build -d",
+    "docker:down": "docker compose down",
+    "docker:down:prod": "docker compose -f docker-compose.prod.yml down",
+    "db:init": "psql -h ${PG_HOST:-localhost} -p ${PG_PORT:-5432} -U ${PG_USER:-bitpay_user} -d ${PG_DATABASE:-bitpay_db} -f database/schema.sql",
+    "db:migrate": "for f in database/migrations/*.sql; do psql -h ${PG_HOST:-localhost} -p ${PG_PORT:-5432} -U ${PG_USER:-bitpay_user} -d ${PG_DATABASE:-bitpay_db} -f $f; done",
+    "test": "jest --config jest.config.js"
+  },
+  "keywords": ["payment", "microservices", "aggregated-payment"],
+  "author": "",
+  "license": "MIT"
+}

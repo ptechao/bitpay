@@ -3,7 +3,7 @@
 
 const cron = require("node-cron");
 const SettlementService = require("../services/settlementService");
-const { query } = require("../config/db");
+const knex = require("../config/db");
 
 // 自動結算任務
 const startSettlementJob = () => {

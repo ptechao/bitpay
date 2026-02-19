@@ -1,7 +1,7 @@
 // 前言：此檔案定義了 Risk-Control 微服務的資料模型，使用 Knex.js 查詢建構器與 PostgreSQL 互動。
 // 它包含了對 `risk_rules` 和 `risk_logs` 表的資料庫操作方法，例如查找所有風控規則和創建風控規則。
 
-const db = require("../../src/config/db"); // 引入共用資料庫實例
+const db = require("../config/db"); // 引入共用資料庫實例
 
 const RULES_TABLE_NAME = "risk_rules";
 const LOGS_TABLE_NAME = "risk_logs";
