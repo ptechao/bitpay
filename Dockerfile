@@ -156,6 +156,8 @@ FROM node:20-alpine AS admin-portal-build
 WORKDIR /app
 COPY portals/admin-portal/package*.json ./
 RUN npm install --legacy-peer-deps
+# ensure ajv is available for react-scripts / terser-webpack-plugin compatibility
+RUN npm install ajv@8.12.0 --no-save || true
 COPY portals/admin-portal/ ./
 RUN npm run build
 
