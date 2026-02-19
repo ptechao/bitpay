@@ -12,7 +12,7 @@ WORKDIR /app
 # 複製共用模組
 COPY services/shared/ ./services/shared/
 # 安裝 shared 所需的常見套件以避免 run-time 缺少依賴（例如 knex）
-RUN npm install knex pg --no-save || true
+RUN npm install knex pg jsonwebtoken --no-save || true
 
 # -----------------------------------------------------------------------------
 # 階段 2: Payment Service
@@ -53,7 +53,7 @@ WORKDIR /app/services/agent-service
 COPY services/agent-service/package*.json ./
 RUN npm install --production || true
 # ensure knex present in case install cache missed
-RUN npm install knex pg --no-save || true
+RUN npm install knex pg jsonwebtoken --no-save || true
 COPY services/agent-service/ ./
 
 WORKDIR /app
