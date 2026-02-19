@@ -11,6 +11,8 @@ WORKDIR /app
 
 # 複製共用模組
 COPY services/shared/ ./services/shared/
+# 安裝 shared 所需的常見套件以避免 run-time 缺少依賴（例如 knex）
+RUN npm install knex --no-save || true
 
 # -----------------------------------------------------------------------------
 # 階段 2: Payment Service
