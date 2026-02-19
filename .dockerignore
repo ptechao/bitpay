@@ -1,14 +1,8 @@
-
-/**
- * @file .dockerignore
- * @description 定義 Docker 構建時應忽略的檔案和目錄。
- *              這有助於減少 Docker 映像的大小並加快構建速度。
- * @author Manus AI
- * @date 2026-02-19
- */
+# Docker 構建時應忽略的檔案和目錄
 
 # 依賴項
 node_modules
+**/node_modules
 
 # 日誌
 npm-debug.log
@@ -39,14 +33,6 @@ Thumbs.db
 .git
 .gitignore
 
-# Docker 相關
-Dockerfile
-docker-compose*.yml
-.dockerignore
-
-# 前端構建輸出
-portals/*/client/build
-portals/*/client/dist
-
 # 其他
 *.swp
+certbot
