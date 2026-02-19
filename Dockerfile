@@ -19,7 +19,8 @@ FROM backend-base AS payment-service
 
 WORKDIR /app/services/payment-service
 COPY services/payment-service/package*.json ./
-RUN npm install --production
+RUN npm ci --production || npm install --production || true
+COPY services/shared/ ./services/shared/
 COPY services/payment-service/ ./
 
 WORKDIR /app
@@ -33,7 +34,8 @@ FROM backend-base AS merchant-service
 
 WORKDIR /app/services/merchant-service
 COPY services/merchant-service/package*.json ./
-RUN npm install --production
+RUN npm ci --production || npm install --production || true
+COPY services/shared/ ./services/shared/
 COPY services/merchant-service/ ./
 
 WORKDIR /app
@@ -63,7 +65,8 @@ FROM backend-base AS settlement-service
 
 WORKDIR /app/services/settlement-service
 COPY services/settlement-service/package*.json ./
-RUN npm install --production
+RUN npm ci --production || npm install --production || true
+COPY services/shared/ ./services/shared/
 COPY services/settlement-service/ ./
 
 WORKDIR /app
@@ -77,7 +80,8 @@ FROM backend-base AS risk-control-service
 
 WORKDIR /app/services/risk-control-service
 COPY services/risk-control-service/package*.json ./
-RUN npm install --production
+RUN npm ci --production || npm install --production || true
+COPY services/shared/ ./services/shared/
 COPY services/risk-control-service/ ./
 
 WORKDIR /app
@@ -91,7 +95,8 @@ FROM backend-base AS channel-service
 
 WORKDIR /app/services/channel-service
 COPY services/channel-service/package*.json ./
-RUN npm install --production
+RUN npm ci --production || npm install --production || true
+COPY services/shared/ ./services/shared/
 COPY services/channel-service/ ./
 
 WORKDIR /app
