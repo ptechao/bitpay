@@ -10,6 +10,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const channelRoutes = require("./src/routes/channelRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
 const { errorHandler } = require("./src/middlewares/errorHandler");
 const db = require("./src/config/db");
 const { connectRedis } = require("./src/config/redis");
@@ -25,6 +26,7 @@ app.use(express.json());
 
 // 路由
 app.use("/api/v1/channels", channelRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // 錯誤處理中介軟體
 app.use(errorHandler);

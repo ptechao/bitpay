@@ -29,7 +29,25 @@ function Router() {
       <Route path="/orders" component={Orders} />
       <Route path="/refunds" component={Refunds} />
       <Route path="/settlements" component={Settlements} />
-      <Route path="/payment-config" component={() => <div>Payment Config - Coming Soon</div>} />
+      <Route path="/payment-config" component={() => {
+  const [channels, setChannels] = React.useState([]);
+  React.useEffect(() => {
+    fetch('/api/v1/admin/payment-config')
+      .then(res => res.json())
+      .then(data => setChannels(data.channels || []))
+      .catch(console.error);
+  }, []);
+  return (
+    <div>
+      <h2>Payment Config</h2>
+      <ul>
+        {channels.map(c => (
+          <li key={c.id}>{c.name} ({c.code})</li>
+        ))}
+      </ul>
+    </div>
+  );
+}} />
       <Route path="/cashier" component={() => <div>Cashier - Coming Soon</div>} />
       <Route path="/settings" component={() => <div>Settings - Coming Soon</div>} />
       <Route path="/" component={() => <Login />} />
