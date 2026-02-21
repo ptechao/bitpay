@@ -138,7 +138,7 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=merchant-portal-build /app/dist/public ./build
 EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "0.0.0.0:3000"]
+CMD ["npx", "http-server", "./build", "-p", "3000", "-a", "0.0.0.0"]
 
 # -----------------------------------------------------------------------------
 # 階段 10: Agent Portal 前端構建
