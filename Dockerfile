@@ -138,7 +138,7 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=merchant-portal-build /app/dist/public ./build
 EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["serve", "-s", "build", "-l", "0.0.0.0:3000"]
 
 # -----------------------------------------------------------------------------
 # 階段 10: Agent Portal 前端構建
@@ -157,7 +157,7 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=agent-portal-build /app/dist/public ./build
 EXPOSE 3008
-CMD ["serve", "-s", "build", "-l", "3008"]
+CMD ["serve", "-s", "build", "-l", "0.0.0.0:3008"]
 
 # -----------------------------------------------------------------------------
 # 階段 11: Admin Portal 前端構建
@@ -178,4 +178,4 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=admin-portal-build /app/build ./build
 EXPOSE 3009
-CMD ["serve", "-s", "build", "-l", "3009"]
+CMD ["serve", "-s", "build", "-l", "0.0.0.0:3009"]
